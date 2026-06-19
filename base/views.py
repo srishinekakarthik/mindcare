@@ -26,7 +26,7 @@ except ImportError:
 
 # Create your views here.
 def home(request):
-    return render(request, 'admin-student.html')
+    return redirect('login')
 
 def login_view(request):
     return render(request, 'login.html')
@@ -224,7 +224,7 @@ def signup_api(request):
             password=password
         )
 
-        if role == 'admin':
+        if role in ['staff', 'admin', 'faculty']:
             django_user.is_staff = True
             django_user.is_superuser = True
             django_user.save()
@@ -250,7 +250,7 @@ def signup_api(request):
                 'role': role,
                 'institution': profile.institution.name
             },
-            'redirect_url': '/mindcare-home/'
+            'redirect_url': '/dashboard/' if role in ['staff', 'admin', 'faculty'] else '/mindcare-home/'
         })
 
     except Exception as e:
@@ -286,7 +286,7 @@ def login_api(request):
                     'role': profile.role,
                     'institution': profile.institution.name
                 },
-                'redirect_url': '/mindcare-home/'
+                'redirect_url': '/dashboard/' if profile.role in ['staff', 'admin', 'faculty'] else '/mindcare-home/'
             })
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
@@ -576,10 +576,11 @@ def analytics_dashboard(request):
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             # Check if user is admin - check role and user email
-            if (user_profile.role == 'admin' or 
+            if (user_profile.role in ['admin', 'staff', 'faculty'] or 
                 user_profile.user.email == 'admin@test.com' or
                 user_profile.user.email == 'admin@demo.com' or
-                user_profile.user.username == 'admin@test.com'):
+                user_profile.user.username == 'admin@test.com' or
+                request.user.is_superuser):
                 return render(request, 'analytics_dashboard.html')
             else:
                 messages.error(request, 'Access denied. Admin privileges required.')
@@ -596,7 +597,7 @@ def database_viewer(request):
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             # Check if user is admin
-            if (user_profile.role == 'admin' or 
+            if (user_profile.role in ['admin', 'staff', 'faculty'] or 
                 user_profile.user.email == 'admin@test.com' or
                 user_profile.user.email == 'admin@demo.com' or
                 user_profile.user.username == 'admin@test.com' or

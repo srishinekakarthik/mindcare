@@ -74,7 +74,7 @@ function initUserCard() {
             if (initEl) initEl.textContent = displayName.charAt(0).toUpperCase();
 
             // Show admin items
-            if (role === 'admin') {
+            if (['admin', 'staff', 'faculty'].includes(role)) {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
             }
         } else {

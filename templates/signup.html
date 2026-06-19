@@ -156,14 +156,14 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="institution">Institution</label>
-                    <select id="institution" class="form-select" required>
-                        <option value="" disabled selected>Select your university</option>
-                        <option value="Stanford University">Stanford University</option>
-                        <option value="MIT">MIT</option>
-                        <option value="Harvard University">Harvard University</option>
-                        <option value="UC Berkeley">UC Berkeley</option>
-                        <option value="Demo University">Demo University</option>
-                    </select>
+                    <input type="text" id="institution" class="form-input" list="universities" placeholder="Type or select your university" required>
+                    <datalist id="universities">
+                        <option value="Stanford University">
+                        <option value="MIT">
+                        <option value="Harvard University">
+                        <option value="UC Berkeley">
+                        <option value="Demo University">
+                    </datalist>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>

@@ -212,6 +212,9 @@ def signup_api(request):
         if not all([username, email, password, institution_name]):
             return JsonResponse({'error': 'All fields are required'}, status=400)
 
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'success': False, 'error': 'Username already exists. Please choose a different username.'}, status=400)
+
         institution, _ = Institution.objects.get_or_create(name=institution_name)
 
         # Create Django user

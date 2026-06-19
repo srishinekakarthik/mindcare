@@ -1,536 +1,217 @@
-// Sample notifications data
-        let notifications = [
-            {
-                id: 1,
-                type: 'info',
-                title: 'Welcome to MindCare!',
-                message: 'Your mental health platform is ready to support you.',
-                time: '5 minutes ago',
-                read: false
+/* ============================================================
+   MindCare — main.js
+   Global UI logic: sidebar, notifications, nav active state
+   ============================================================ */
+
+// ── Notifications data ──────────────────────────────────────
+let notifications = [
+    { id: 1, type: 'info',    title: 'Welcome to MindCare', message: 'Your wellness platform is ready.', time: '5m ago', read: false },
+    { id: 2, type: 'success', title: 'Session Confirmed',   message: 'Your session is set for tomorrow at 2 PM.', time: '1h ago', read: false },
+    { id: 3, type: 'warning', title: 'Check-in Reminder',   message: "Don't forget your daily mood check-in.", time: '3h ago', read: false },
+];
+
+// ── DOM Ready ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    initSidebar();
+    initNotifications();
+    initUserCard();
+    initMobileMenu();
+    setActiveNavLink();
+});
+
+// ── Sidebar ──────────────────────────────────────────────────
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+    sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+}
+
+function initSidebar() {
+    // On desktop, sidebar is always visible (no toggle needed)
+}
+
+function initMobileMenu() {
+    const btn = document.getElementById('mobileMenuBtn');
+    if (btn) {
+        // Show mobile menu button on small screens
+        const mq = window.matchMedia('(max-width: 768px)');
+        const update = (e) => { btn.style.display = e.matches ? 'flex' : 'none'; };
+        mq.addEventListener('change', update);
+        update(mq);
+    }
+}
+
+// ── Active Nav Link ──────────────────────────────────────────
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link[data-path]');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('data-path');
+        if (linkPath && currentPath.startsWith(linkPath)) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// ── User Card ────────────────────────────────────────────────
+function initUserCard() {
+    try {
+        const userData = localStorage.getItem('user');
+        const nameEl   = document.getElementById('userDisplayName');
+        const roleEl   = document.getElementById('userDisplayRole');
+        const initEl   = document.getElementById('userAvatarInitials');
+
+        if (userData) {
+            const user = JSON.parse(userData);
+            const displayName = user.username || user.email || 'User';
+            const role        = user.role || 'student';
+
+            if (nameEl) nameEl.textContent = displayName;
+            if (roleEl) roleEl.textContent = capitalize(role);
+            if (initEl) initEl.textContent = displayName.charAt(0).toUpperCase();
+
+            // Show admin items
+            if (role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            }
+        } else {
+            if (nameEl) nameEl.textContent = 'Guest';
+            if (roleEl) roleEl.textContent = 'Student';
+            if (initEl) initEl.textContent = 'G';
+        }
+    } catch (e) {
+        console.error('Error loading user data:', e);
+    }
+}
+
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// ── Logout ───────────────────────────────────────────────────
+async function handleLogout() {
+    try {
+        const response = await fetch('/api/logout/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
             },
-            {
-                id: 2,
-                type: 'success',
-                title: 'Session Scheduled',
-                message: 'Your counseling session is confirmed for tomorrow at 2:00 PM.',
-                time: '1 hour ago',
-                read: false
-            },
-            {
-                id: 3,
-                type: 'warning',
-                title: 'Daily Check-in Reminder',
-                message: 'Don\'t forget to complete your daily wellness check-in.',
-                time: '3 hours ago',
-                read: false
-            },
-            {
-                id: 4,
-                type: 'info',
-                title: 'New Resource Available',
-                message: 'Check out our new meditation guide in the Resources section.',
-                time: '1 day ago',
-                read: true
-            }
-        ];
-
-        // Check user role and show/hide admin features
-        function checkUserRole() {
-            try {
-                const userData = localStorage.getItem('user');
-                if (userData) {
-                    const user = JSON.parse(userData);
-                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
-                    
-                    if (user.role === 'admin' && analyticsMenuItem) {
-                        analyticsMenuItem.style.display = 'block';
-                        console.log('Admin user detected - Analytics menu item shown');
-                    } else if (analyticsMenuItem) {
-                        analyticsMenuItem.style.display = 'none';
-                        console.log('Student user detected - Analytics menu item hidden');
-                    }
-                } else {
-                    // No user data found, hide analytics
-                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
-                    if (analyticsMenuItem) {
-                        analyticsMenuItem.style.display = 'none';
-                        console.log('No user data found - Analytics menu item hidden');
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking user role:', error);
-                // Hide analytics on error
-                const analyticsMenuItem = document.getElementById('analyticsMenuItem');
-                if (analyticsMenuItem) {
-                    analyticsMenuItem.style.display = 'none';
-                }
-            }
-        }
-
-        // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize notifications
-            initializeNotifications();
-            
-            // Check user role and show/hide admin features
-            checkUserRole();
-            
-            // Add click event listeners to navigation links
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    const page = this.getAttribute('data-page');
-                    
-                    // Allow direct navigation for analytics and other direct links
-                    if (href && href !== '#' && (href.startsWith('/') || href.startsWith('http'))) {
-                        // Let the browser handle the navigation
-                        return;
-                    }
-                    
-                    // Prevent default for data-page navigation
-                    e.preventDefault();
-                    if (page) {
-                        navigateToPage(page);
-                    }
-                });
-            });
-
-            // Add smooth scrolling to emergency cards
-            const emergencyCards = document.querySelectorAll('.emergency-card');
-            emergencyCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-
-            // Close notification dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.notification-container')) {
-                    closeNotifications();
-                }
-            });
         });
+        localStorage.removeItem('user');
+        window.location.href = '/login/';
+    } catch (e) {
+        localStorage.removeItem('user');
+        window.location.href = '/login/';
+    }
+}
 
-        // Navigation function
-        function navigateToPage(page) {
-            // Add visual feedback
-            const currentLink = document.querySelector(`[data-page="${page}"]`);
-            if (currentLink) {
-                // Remove active class from all links
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.style.backgroundColor = '';
-                });
-                
-                // Add active class to current link
-                currentLink.style.backgroundColor = 'rgba(255,255,255,0.3)';
-            }
+// ── Notifications ────────────────────────────────────────────
+function initNotifications() {
+    renderNotifications();
+    updateNotifDot();
+}
 
-            // Navigate to different pages
-            switch(page) {
-                case 'home':
-                    showNotification('Welcome to the Home page!', 'info');
-                    break;
-                case 'chatbot':
-                    showNotification('Redirecting to AI Support...', 'info');
-                    addNotification('info', 'AI Chatbot Access', 'You are being redirected to the AI Support page.');
-                    setTimeout(() => {
-                        window.location.href = '/ai-support/';
-                    }, 1000);
-                    break;
-                case 'sessions':
-                    showNotification('Redirecting to Book Session...', 'info');
-                    addNotification('info', 'Session Booking', 'You are being redirected to the booking page.');
-                    setTimeout(() => {
-                        window.location.href = '/book-session/';
-                    }, 1000);
-                    break;
-                case 'assessment':
-                    showNotification('Redirecting to Self Assessment...', 'info');
-                    addNotification('info', 'Self Assessment', 'You are being redirected to the assessment page.');
-                    setTimeout(() => {
-                        window.location.href = '/self-assessment/';
-                    }, 1000);
-                    break;
-                case 'mood':
-                    showNotification('Redirecting to Mood Tracker...', 'info');
-                    setTimeout(() => {
-                        window.location.href = '/mood-tracker/';
-                    }, 1000);
-                    break;
-                case 'resources':
-                    showNotification('Redirecting to Resources...', 'info');
-                    setTimeout(() => {
-                        window.location.href = '/resources/';
-                    }, 1000);
-                    break;
-                case 'support':
-                    showNotification('Redirecting to Peer Support...', 'info');
-                    setTimeout(() => {
-                        window.location.href = '/peer-support/';
-                    }, 1000);
-                    break;
-            }
-        }
+function toggleNotifications() {
+    const dropdown = document.getElementById('notificationDropdown');
+    if (!dropdown) return;
+    dropdown.classList.toggle('show');
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            const isMobile = window.innerWidth <= 768;
-            
-            sidebar.classList.toggle('expanded');
-            
-            if (isMobile) {
-                overlay.classList.toggle('active');
-                // Prevent body scroll when sidebar is open on mobile
-                document.body.style.overflow = sidebar.classList.contains('expanded') ? 'hidden' : '';
-            }
-        }
+    // Close on outside click
+    if (dropdown.classList.contains('show')) {
+        setTimeout(() => {
+            document.addEventListener('click', closeNotificationsOnOutside, { once: true });
+        }, 0);
+    }
+}
 
-        // Close sidebar when clicking outside on mobile
-        function closeSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            
-            if (sidebar.classList.contains('expanded')) {
-                sidebar.classList.remove('expanded');
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
+function closeNotificationsOnOutside(e) {
+    const dropdown = document.getElementById('notificationDropdown');
+    const btn = document.getElementById('notifBtn');
+    if (dropdown && !dropdown.contains(e.target) && btn && !btn.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+}
 
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            
-            if (window.innerWidth > 768) {
-                // Desktop: remove mobile-specific classes and styles
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
+function renderNotifications() {
+    const list = document.getElementById('notificationList');
+    if (!list) return;
 
-        // Notification functions
-        function initializeNotifications() {
-            updateNotificationBadge();
-            renderNotifications();
-        }
+    if (notifications.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917z"/></svg>
+                <p>No new notifications</p>
+            </div>`;
+        return;
+    }
 
-        function toggleNotifications() {
-            const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('show');
-            
-            if (dropdown.classList.contains('show')) {
-                // Mark notifications as read when dropdown is opened
-                setTimeout(() => {
-                    markAllAsRead();
-                }, 1000);
+    list.innerHTML = notifications.map(n => `
+        <div class="notification-item ${n.read ? 'read' : ''}" onclick="markRead(${n.id})">
+            <div class="notification-icon ${n.type}">
+                ${getNotifIcon(n.type)}
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${escapeHtml(n.title)}</div>
+                <div class="notification-message">${escapeHtml(n.message)}</div>
+                <div class="notification-time">${n.time}</div>
+            </div>
+            ${!n.read ? '<div class="notification-dot"></div>' : ''}
+        </div>
+    `).join('');
+}
+
+function getNotifIcon(type) {
+    const icons = {
+        info:    `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>`,
+        success: `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>`,
+        warning: `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg>`,
+    };
+    return icons[type] || icons.info;
+}
+
+function markRead(id) {
+    const n = notifications.find(n => n.id === id);
+    if (n) n.read = true;
+    renderNotifications();
+    updateNotifDot();
+}
+
+function clearAllNotifications() {
+    notifications = [];
+    renderNotifications();
+    updateNotifDot();
+}
+
+function updateNotifDot() {
+    const dot = document.getElementById('notifDot');
+    if (!dot) return;
+    const unread = notifications.filter(n => !n.read).length;
+    dot.style.display = unread > 0 ? 'block' : 'none';
+}
+
+// ── Utilities ────────────────────────────────────────────────
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
+    }
+    return cookieValue;
+}
 
-        function closeNotifications() {
-            const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.remove('show');
-        }
-
-        function updateNotificationBadge() {
-            const badge = document.getElementById('notificationBadge');
-            const unreadCount = notifications.filter(n => !n.read).length;
-            
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        function renderNotifications() {
-            const notificationList = document.getElementById('notificationList');
-            
-            if (notifications.length === 0) {
-                notificationList.innerHTML = `
-                    <div class="notification-empty">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                        <p>No notifications yet</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const notificationHTML = notifications.map(notification => {
-                const iconSVG = getNotificationIcon(notification.type);
-                return `
-                    <div class="notification-item ${notification.read ? 'read' : ''}" onclick="markAsRead(${notification.id})">
-                        <div class="notification-icon ${notification.type}">
-                            ${iconSVG}
-                        </div>
-                        <div class="notification-content">
-                            <h4 class="notification-title">${notification.title}</h4>
-                            <p class="notification-message">${notification.message}</p>
-                            <p class="notification-time">${notification.time}</p>
-                        </div>
-                        ${!notification.read ? '<div class="notification-dot"></div>' : ''}
-                    </div>
-                `;
-            }).join('');
-
-            notificationList.innerHTML = notificationHTML;
-        }
-
-        function getNotificationIcon(type) {
-            const icons = {
-                info: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
-                success: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>',
-                warning: '<svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>'
-            };
-            return icons[type] || icons.info;
-        }
-
-        function markAsRead(notificationId) {
-            const notification = notifications.find(n => n.id === notificationId);
-            if (notification) {
-                notification.read = true;
-                updateNotificationBadge();
-                renderNotifications();
-            }
-        }
-
-        function markAllAsRead() {
-            notifications.forEach(n => n.read = true);
-            updateNotificationBadge();
-            renderNotifications();
-        }
-
-        function clearAllNotifications() {
-            if (confirm('Are you sure you want to clear all notifications?')) {
-                notifications = [];
-                updateNotificationBadge();
-                renderNotifications();
-                showNotification('All notifications cleared!', 'success');
-            }
-        }
-
-        function addNotification(type, title, message) {
-            const newNotification = {
-                id: Date.now(),
-                type: type,
-                title: title,
-                message: message,
-                time: 'Just now',
-                read: false
-            };
-            notifications.unshift(newNotification);
-            updateNotificationBadge();
-            renderNotifications();
-            
-            // Show a brief animation on the bell
-            const bell = document.querySelector('.notification-bell');
-            bell.style.animation = 'bounce 0.6s ease';
-            setTimeout(() => {
-                bell.style.animation = '';
-            }, 600);
-        }
-
-
-        // Logout functionality
-        async function handleLogout() {
-            if (confirm('Are you sure you want to logout?')) {
-                try {
-                    // Clear local storage
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('access_token');
-                    
-                    // Show logout notification
-                    showNotification('Logging out...', 'info');
-                    
-                    // Call logout API if available
-                    try {
-                        await fetch('/api/logout/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': getCookie('csrftoken')
-                            }
-                        });
-                    } catch (error) {
-                        console.log('Logout API call failed, but continuing with client-side logout');
-                    }
-                    
-                    // Redirect to login page after 1 second
-                    setTimeout(() => {
-                        window.location.href = '/login/';
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    showNotification('Logout failed. Redirecting anyway...', 'error');
-                    setTimeout(() => {
-                        window.location.href = '/login/';
-                    }, 2000);
-                }
-            }
-        }
-
-        // Helper function to get CSRF cookie
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // Emergency contact functions
-        function callCrisisHelpline() {
-            if (confirm('Are you in immediate danger? If yes, please call 911 or your local emergency number immediately.')) {
-                showNotification('Crisis Helpline: 1800-XXX-XXXX', 'emergency');
-                // In a real application, this would initiate a phone call
-                // window.location.href = 'tel:1800-XXX-XXXX';
-            }
-        }
-
-        function contactCampusCounselling() {
-            showNotification('Campus Counselling: Mon-Fri 9AM-5PM, Student Center 2nd Floor', 'info');
-        }
-
-        function callEmergencyServices() {
-            if (confirm('This will connect you to emergency services. Continue?')) {
-                showNotification('Emergency Services: Campus Security XXX-XXXX or Call 911', 'emergency');
-                // In a real application, this would initiate a phone call
-                // window.location.href = 'tel:911';
-            }
-        }
-
-        // Notification system
-        function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'emergency' ? '#ff6b6b' : '#667eea'};
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                    z-index: 1000;
-                    font-size: 14px;
-                    max-width: 300px;
-                    animation: slideIn 0.3s ease-out;
-                ">
-                    ${message}
-                </div>
-            `;
-
-            // Add CSS animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Add to page
-            document.body.appendChild(notification);
-
-            // Auto remove after 4 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 4000);
-        }
-
-        // Set active navigation item
-        function setActiveNavItem(page) {
-            // Remove active class from all nav items
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
-            
-            // Add active class to current page
-            const currentNavItem = document.querySelector(`[data-page="${page}"]`);
-            if (currentNavItem) {
-                currentNavItem.closest('.nav-item').classList.add('active');
-            }
-        }
-
-        // Add some interactive features
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set home as active by default
-            setActiveNavItem('home');
-            
-            // Add hover effects to feature badges
-            const badges = document.querySelectorAll('.badge');
-            badges.forEach(badge => {
-                badge.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
-                    this.style.transition = 'transform 0.2s ease';
-                });
-                
-                badge.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                });
-            });
-
-            // Add click effect to feature list items
-            const featureItems = document.querySelectorAll('.features-list li');
-            featureItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    this.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
-                    setTimeout(() => {
-                        this.style.backgroundColor = '';
-                    }, 200);
-                });
-            });
-        });
-
-        // Keyboard navigation support
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                // Close any open modals or notifications
-                const notification = document.querySelector('.notification');
-                if (notification) {
-                    notification.remove();
-                }
-            }
-        });
-
-        // Welcome message on page load
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                showNotification('Welcome to MindCare! Your mental health journey starts here.', 'info');
-            }, 1000);
-        });
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text || ''));
+    return div.innerHTML;
+}

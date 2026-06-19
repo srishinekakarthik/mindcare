@@ -2,101 +2,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Role</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: Georgia, serif;
-      background: url("{% static 'images/admin_student_bg.jpeg' %}") no-repeat center center/cover;
-      /* If you don’t want image, replace with gradient: */
-      /* background: linear-gradient(120deg, #f8b7c2, #c9a7d3); */
-      color: #2b2b2b;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MindCare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0B0F14;
+            --bg-secondary: #111827;
+            --bg-card: #161B22;
+            --bg-hover: #1F2937;
+            --border: #2A3441;
+            --border-subtle: #1F2937;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --accent: #3B82F6;
+            --accent-hover: #2563EB;
+            --accent-subtle: rgba(59, 130, 246, 0.1);
+            --success: #10B981;
+            --success-subtle: rgba(16, 185, 129, 0.1);
+            --danger: #EF4444;
+            --danger-subtle: rgba(239, 68, 68, 0.1);
+            --warning: #F59E0B;
+            --radius-sm: 4px;
+            --radius: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --shadow-md: 0 10px 15px rgba(0,0,0,0.4);
+            --shadow-lg: 0 20px 25px rgba(0,0,0,0.5);
+            --transition: 0.15s ease;
+        }
 
-    .container {
-      text-align: center;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    input[type="text"] {
-      width: 250px;
-      padding: 8px;
-      margin-bottom: 25px;
-      font-size: 18px;
-      font-family: Georgia, serif;
-      border: none;
-      border-bottom: 1px solid #000;
-      outline: none;
-      background: transparent;
-      text-align: center;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
 
-    h2 {
-      font-size: 20px;
-      margin-bottom: 25px;
-    }
+        .landing-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+        }
 
-    .btn {
-      display: block;
-      width: 200px;
-      padding: 15px;
-      margin: 15px auto;
-      background-color: #d2a6a6;
-      border: none;
-      border-radius: 25px;
-      font-size: 18px;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 4px 4px 0px #000;
-      transition: all 0.2s ease;
-    }
+        .landing-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
 
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 6px 6px 0px #333;
-    }
-  </style>
+        .brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+
+        .brand-logo svg {
+            width: 24px;
+            height: 24px;
+            color: #fff;
+        }
+
+        .landing-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .landing-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-select:focus {
+            border-color: var(--accent);
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .role-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .role-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .role-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+
+        .role-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .role-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .auth-links {
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .auth-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .auth-links a:hover {
+            color: var(--accent);
+        }
+    </style>
 </head>
 <body>
+    <div class="landing-container">
+        <div class="landing-card">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            
+            <h1 class="landing-title">MindCare Platform</h1>
+            <p class="landing-desc">Your dedicated space for mental wellness, peer support, and professional counseling.</p>
 
-  <div class="container">
-    <input type="text" id="institution" placeholder="Enter institution name">
-    <h2>who do you want to operate as ?</h2>
-    <button class="btn" onclick="selectRole('Student')">Student</button>
-    <button class="btn" onclick="selectRole('Admin')">Admin</button>
-  </div>
+            <div class="form-group">
+                <label class="form-label">Select your institution to begin</label>
+                <select id="institution" class="form-select">
+                    <option value="" disabled selected>Select your university</option>
+                    <option value="Stanford University">Stanford University</option>
+                    <option value="MIT">MIT</option>
+                    <option value="Harvard University">Harvard University</option>
+                    <option value="UC Berkeley">UC Berkeley</option>
+                    <option value="Demo University">Demo University</option>
+                </select>
+            </div>
 
-  <script>
-    function selectRole(role) {
-      const institution = document.getElementById('institution').value.trim();
-      if (!institution) {
-        alert("Please enter your institution name first.");
-        return;
-      }
-      
-      // Store institution in localStorage for signup
-      localStorage.setItem('selectedInstitution', institution);
-      localStorage.setItem('selectedRole', role);
-      
-      // Redirect to signup with role parameter
-      window.location.href = '/signup/?role=' + role.toLowerCase() + '&institution=' + encodeURIComponent(institution);
-    }
-    
-    // Load saved institution if available
-    window.addEventListener('load', function() {
-      const savedInstitution = localStorage.getItem('selectedInstitution');
-      if (savedInstitution) {
-        document.getElementById('institution').value = savedInstitution;
-      }
-    });
-  </script>
+            <div class="form-label" style="text-align: left; margin-bottom: 12px; margin-top: 24px;">I want to operate as:</div>
+            
+            <div class="role-grid">
+                <div class="role-btn" onclick="selectRole('student')">
+                    <div class="role-icon" style="color: var(--text-primary);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="role-name">Student / Staff</div>
+                </div>
+                <div class="role-btn" onclick="selectRole('admin')">
+                    <div class="role-icon" style="color: var(--text-primary);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="role-name">Administrator</div>
+                </div>
+            </div>
 
+            <div class="auth-links">
+                <a href="/login/">Log In</a>
+                <span>•</span>
+                <a href="/signup/">Sign Up directly</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            const savedInstitution = localStorage.getItem('selectedInstitution');
+            if (savedInstitution) {
+                const select = document.getElementById('institution');
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === savedInstitution) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        });
+
+        function selectRole(role) {
+            const institution = document.getElementById('institution').value;
+            
+            if (!institution) {
+                const select = document.getElementById('institution');
+                select.style.borderColor = 'var(--danger)';
+                setTimeout(() => { select.style.borderColor = 'var(--border)'; }, 1000);
+                return;
+            }
+            
+            localStorage.setItem('selectedInstitution', institution);
+            localStorage.setItem('selectedRole', role);
+            
+            window.location.href = '/signup/';
+        }
+    </script>
 </body>
 </html>
-

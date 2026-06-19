@@ -4,127 +4,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MindCare Mental Health Platform{% endblock %}</title>
+    <title>{% block title %}MindCare — Student Mental Health Platform{% endblock %}</title>
+    <meta name="description" content="{% block meta_desc %}MindCare helps universities support student mental wellness through AI-powered tools and professional resources.{% endblock %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-        <!-- Hamburger Menu in Sidebar -->
-        <div class="sidebar-hamburger" onclick="toggleSidebar()">
-            <span></span>
-            <span></span>
-            <span></span>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 2.5a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V9H8V7.23A2 2 0 0 1 8 3.5zm0 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+            </svg>
         </div>
-        <h1 class="sidebar-title">MindCare Mental Health Platform</h1>
-        <ul class="nav-menu">
+        <span class="sidebar-logo-text">MindCare</span>
+    </div>
+
+    <div class="nav-section">
+        <span class="nav-label">Platform</span>
+        <ul style="list-style:none;">
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="home">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUwxMiAyTDIxIDlWMTlIMTNWMTNIMTFWMTlIM1Y5WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Home" class="nav-icon">
-                    <span class="nav-text">Home</span>
+                <a href="{% url 'mindcare_home' %}" class="nav-link" data-path="/mindcare-home/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L8.707 1.5zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5z"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item admin-only" id="studentsMenuItem" style="display:none;">
+                <a href="{% url 'database_viewer' %}" class="nav-link" data-path="/database/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002A.274.274 0 0 1 15 13H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+                    Students
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="chatbot">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCAxMEgxNlYxMkg4VjEwWk04IDE0SDE2VjE2SDhWMTQiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="AI Chatbot" class="nav-icon">
-                    <span class="nav-text">AI Chatbot</span>
+                <a href="{% url 'mood_tracker' %}" class="nav-link" data-path="/mood-tracker/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/></svg>
+                    Mood Analytics
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="sessions">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5IDNINUMzLjg5NSA0IDMgNC44OTUgMyA2VjE4QzMgMTkuMTA1IDMuODk1IDIwIDUgMjBIMTlDMjAuMTA1IDIwIDIxIDE5LjEwNSAyMSAxOFY2QzIxIDQuODk1IDIwLjEwNSA0IDE5IDRaTTE5IDE4SDVWNkgxOVYxOFpNMTcgOEg3VjEwSDE3VjhaTTE3IDEySDdWMTBIMTdWMTJaTTE3IDE2SDdWMTBIMTdWMTYiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Book Sessions" class="nav-icon">
-                    <span class="nav-text">Book Sessions</span>
+                <a href="{% url 'self_assessment' %}" class="nav-link" data-path="/self-assessment/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/></svg>
+                    Assessments
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="resources">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkM0IDQuODk1IDQuODk1IDQgNiA0SDE4QzE5LjEwNSA0IDIwIDQuODk1IDIwIDZWMThDMjAgMTkuMTA1IDE5LjEwNSAyMCAxOCAyMEg2QzQuODk1IDIwIDQgMTkuMTA1IDQgMThWNlpNNiA2VjE4SDE4VjZINlpNOCA4SDE2VjEwSDhWOFpNOCAxMkgxNlYxNEg4VjEyWiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Resources" class="nav-icon">
-                    <span class="nav-text">Resources</span>
+                <a href="{% url 'ai_support' %}" class="nav-link" data-path="/ai-support/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5ZM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a1.001 1.001 0 0 1-.965.995 28.926 28.926 0 0 1-3.497.023.5.5 0 0 1-.044 0l-.108.5H9a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-1 0V11h-.5a.5.5 0 0 1-.5-.5l-.108-.5a28.927 28.927 0 0 1-3.497-.023A1.001 1.001 0 0 1 3 9.219V8.062Zm4.542-4.45C6.587 3.767 5.05 4.65 5.05 6v.109c.876-.03 1.801-.045 2.75-.051V6h.4v.058c.95.006 1.875.02 2.75.051V6c0-1.351-1.537-2.233-2.492-1.888a.8.8 0 0 1-.566 0h-.35Z"/></svg>
+                    AI Assistant
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="assessment">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJIMTVWMTBIOVYxMlpNOSAxNkgxNVYxNEg5VjE2Wk0xOSA0SDE0VjJIMTJWNEg1QzMuODk1IDQgMyA0Ljg5NSAzIDZWMThDMyAxOS4xMDUgMy44OTUgMjAgNSAyMEgxOUMyMC4xMDUgMjAgMjEgMTkuMTA1IDIxIDE4VjZDMjEgNC44OTUgMjAuMTA1IDQgMTkgNFpNMTkgMThINVY2SDE5VjE4Wk0xNyA4SDdWMTBIMTdWOFpNMTcgMTJIN1YxMEgxN1YxMlpNMTcgMTZIN1YxMEgxN1YxNiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Self-Assessment" class="nav-icon">
-                    <span class="nav-text">Self-Assessment</span>
+                <a href="{% url 'resources' %}" class="nav-link" data-path="/resources/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.746c-.917-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.65.71 4.388.84c-1.33.134-2.658.53-3.594.893l-.09.035v9.906l.044-.02c.87-.34 2.155-.69 3.38-.812 1.048-.107 2.15-.026 3.022.682zm.5 0c.984-.847 2.35-1.073 3.612-.943 1.33.134 2.659.53 3.594.893l.09.035v9.906l-.044-.02c-.87-.34-2.155-.69-3.38-.812C11.324 10.831 10.222 10.912 9.35 11.62 9.267 11.558 9.148 11.5 9 11.5V2.547c-.036-.015-.07-.03-.106-.046L8.5 1.783z"/></svg>
+                    Resources
+                </a>
+            </li>
+
+            <span class="nav-label" style="margin-top:8px;">Community</span>
+            <li class="nav-item">
+                <a href="{% url 'peer_support' %}" class="nav-link" data-path="/peer-support/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/><path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
+                    Peer Support
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" data-page="mood">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNMTIgNkM4LjY5MSA2IDYgOC42OTEgNiAxMlM4LjY5MSAxOCAxMiAxOFMxOCAxNS4zMDkgMTggMTJTMTUuMzA5IDYgMTIgNlpNMTIgMTZDOS43OTEgMTYgOCAxNC4yMDkgOCAxMlM5Ljc5MSA4IDEyIDhTMTYgOS43OTEgMTYgMTJTMTQuMjA5IDE2IDEyIDE2WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Mood Tracker" class="nav-icon">
-                    <span class="nav-text">Mood Tracker</span>
+                <a href="{% url 'book_session' %}" class="nav-link" data-path="/book-session/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                    Book Session
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" data-page="support">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCA5QzguNTUyIDkgOSA4LjU1MiA5IDhDOC41NTIgOCA4IDguNTUyIDggOVM4LjU1MiAxMCA5IDEwUzEwIDkuNDQ4IDEwIDlTOS40NDggOCA5IDhaTTE1IDlDMTUuNTUyIDkgMTYgOC41NTIgMTYgOEMxNiA3LjQ0OCAxNS41NTIgNyAxNSA3UzE0IDcuNDQ4IDE0IDhTMTQuNDQ4IDkgMTUgOVpNMTIgMTVDMTMuNjYgMTUgMTUuMTMgMTQuMTMgMTUuNzMgMTIuNzNDMTUuODggMTIuNDcgMTUuNzMgMTIuMTMgMTUuNDcgMTEuOThDMTUuMjEgMTEuODMgMTQuODcgMTEuOTggMTQuNzIgMTIuMjRDMTQuMzMgMTMuMjYgMTMuMjYgMTQgMTIgMTRTOS42NyAxMy4yNiA5LjI4IDEyLjI0QzkuMTMgMTEuOTggOC43OSAxMS44MyA4LjUzIDExLjk4QzguMjcgMTIuMTMgOC4xMiAxMi40NyA4LjI3IDEyLjczQzguODcgMTQuMTMgMTAuMzQgMTUgMTIgMTVaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Peer Support" class="nav-icon">
-                    <span class="nav-text">Peer Support</span>
-                </a>
-            </li>
-            <li class="nav-item admin-only" id="analyticsMenuItem" style="display: none;" data-route="/dashboard/">
-                <a href="/dashboard/" class="nav-link">
-                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogICAgPCEtLSBDaGFydCBiYXJzIHdpdGggZGF0YSBwb2ludHMgLS0+DQogICAgPCEtLSBCYXIgMSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjMiIHk9IjE2IiB3aWR0aD0iMyIgaGVpZ2h0PSI1IiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgMiAobWVkaXVtKSAtLT4NCiAgICA8cmVjdCB4PSI3IiB5PSIxMiIgd2lkdGg9IjMiIGhlaWdodD0iOSIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDMgKHRhbGwpIC0tPg0KICAgIDxyZWN0IHg9IjExIiB5PSI4IiB3aWR0aD0iMyIgaGVpZ2h0PSIxMyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDQgKG1lZGl1bS10YWxsKSAtLT4NCiAgICA8cmVjdCB4PSIxNSIgeT0iMTAiIHdpZHRoPSIzIiBoZWlnaHQ9IjExIiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgNSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjE5IiB5PSIxNCIgd2lkdGg9IjMiIGhlaWdodD0iNyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIA0KICAgIDwhLS0gRGF0YSB0cmVuZCBsaW5lIGNvbm5lY3RpbmcgdGhlIGJhcnMgLS0+DQogICAgPHBhdGggZD0iTTQuNSAxOC41IEw4LjUgMTQuNSBMMTIuNSAxMC41IEwxNi41IDEyLjUgTDIwLjUgMTYuNSIgDQogICAgICAgICAgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIA0KICAgICAgICAgIHN0cm9rZS13aWR0aD0iMS41IiANCiAgICAgICAgICBzdHJva2UtbGluZWNhcD0icm91bmQiIA0KICAgICAgICAgIHN0cm9rZS1saW5lam9pbj0icm91bmQiIA0KICAgICAgICAgIGZpbGw9Im5vbmUiLz4NCiAgICANCiAgICA8IS0tIERhdGEgcG9pbnRzIG9uIHRoZSB0cmVuZCBsaW5lIC0tPg0KICAgIDxjaXJjbGUgY3g9IjQuNSIgY3k9IjE4LjUiIHI9IjEuNSIgZmlsbD0iY3VycmVudENvbG9yIi8+DQogICAgPGNpcmNsZSBjeD0iOC41IiBjeT0iMTQuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxMi41IiBjeT0iMTAuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNi41IiBjeT0iMTIuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIyMC41IiBjeT0iMTYuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCjwvc3ZnPg0K" alt="Analytics" class="nav-icon">
-                    <span class="nav-text">Analytics</span>
+
+            <span class="nav-label admin-only" id="adminLabel" style="display:none; margin-top:8px;">Admin</span>
+            <li class="nav-item admin-only" id="analyticsMenuItem" style="display:none;">
+                <a href="{% url 'analytics_dashboard' %}" class="nav-link" data-path="/dashboard/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>
+                    Analytics
                 </a>
             </li>
         </ul>
-        
-        <!-- Logout Button -->
-        <div class="logout-section">
-            <button class="logout-btn" onclick="handleLogout()">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMjFIMTVBMiAyIDAgMCAwIDE3IDE5VjVBMiAyIDAgMCAwIDE1IDNIOUEyIDIgMCAwIDAgNyA1VjE5QTIgMiAwIDAgMCA5IDIxWk0xNSAzVjE5SDlWNUgxNVpNMTIgMTJIMjBMMTcgOUwxNyAxNUwyMCAxMloiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Logout" class="logout-icon">
-                <span class="logout-text">Logout</span>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-card" id="userCard">
+            <div class="user-avatar" id="userAvatarInitials">?</div>
+            <div class="user-info">
+                <div class="user-name" id="userDisplayName">Loading...</div>
+                <div class="user-role" id="userDisplayRole">Student</div>
+            </div>
+            <button class="logout-btn-icon" onclick="handleLogout()" title="Logout" style="background:none; border:none; cursor:pointer; padding:4px; color:var(--text-muted);">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>
             </button>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <!-- Mobile hamburger (visible only on mobile) -->
-                <div class="mobile-hamburger" onclick="toggleSidebar()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <h1 class="page-title">Home</h1>
-            </div>
-            <div class="header-right">
-                <!-- Notification Bell -->
-                <div class="notification-container">
-                    <div class="notification-bell" onclick="toggleNotifications()">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-                        </svg>
-                        <span class="notification-badge" id="notificationBadge">3</span>
+<!-- ============ MAIN CONTENT ============ -->
+<main class="main-content">
+
+    <!-- Top Header -->
+    <header class="header">
+        <div class="header-breadcrumb">
+            <button class="header-btn" id="mobileMenuBtn" onclick="toggleSidebar()" style="display:none;">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+            </button>
+            <span class="breadcrumb-item">MindCare</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-current" id="breadcrumbCurrent">{% block breadcrumb %}Dashboard{% endblock %}</span>
+        </div>
+
+        <div class="header-search">
+            <svg viewBox="0 0 16 16" fill="currentColor" style="color:var(--text-muted)">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+            <input type="text" placeholder="Search..." id="globalSearch">
+        </div>
+
+        <div class="header-actions">
+            <div style="position:relative;">
+                <button class="header-btn" onclick="toggleNotifications()" id="notifBtn" title="Notifications">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/></svg>
+                    <span class="notif-dot" id="notifDot"></span>
+                </button>
+
+                <!-- Notification Dropdown -->
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                        <button class="clear-all" onclick="clearAllNotifications()">Clear all</button>
                     </div>
-                    
-                    <!-- Notification Dropdown -->
-                    <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-header">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3>Notifications</h3>
-                                <a href="#" class="clear-all" onclick="clearAllNotifications()">Clear all</a>
-                            </div>
-                        </div>
-                        <div class="notification-list" id="notificationList">
-                            <!-- Sample notifications will be populated by JavaScript -->
-                        </div>
-                    </div>
+                    <div class="notification-list" id="notificationList"></div>
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- Page Content -->
+    <div class="page-content">
+        {% block content %}{% endblock %}
+    </div>
+</main>
 
-    <!-- Mobile sidebar overlay -->
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<!-- Mobile Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <script src="{% static 'js/main.js' %}"></script>
-    {% block extra_js %}{% endblock %}
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

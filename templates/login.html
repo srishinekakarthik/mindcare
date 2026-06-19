@@ -1,400 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern Login Interface</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In — MindCare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/global.css">
+    <style>
+        body {
+            background: var(--bg-primary);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  <style>
-    /* Reset and Base Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+        }
 
-    body {
-      font-family: 'Source Serif Pro', serif;
-      height: 100vh;
-      overflow: hidden;
-      background: linear-gradient(135deg,
-        #1e3c72 0%,
-        #2a5298 25%,
-        #3b82f6 50%,
-        #06b6d4 75%,
-        #0891b2 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      position: relative;
-    }
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
 
-    /* Animated background gradient */
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
 
-    /* Back Arrow */
-    .back-arrow {
-      position: fixed;
-      top: 30px;
-      left: 30px;
-      color: rgba(255, 255, 255, 0.9);
-      cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s ease;
-    }
+        .auth-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
 
-    .back-arrow:hover {
-      color: white;
-      transform: translateX(-3px);
-    }
+        .auth-logo svg {
+            width: 24px;
+            height: 24px;
+            color: #fff;
+        }
 
-    /* Main Container */
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      gap: 40px;
-      padding: 0 40px;
-    }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
 
-    /* Quote Card */
-    .quote-card {
-      background: rgba(30, 60, 114, 0.25);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 60px 40px;
-      max-width: 400px;
-      min-height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
+        .auth-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
 
-    .quote-card:hover {
-      transform: translateY(-5px);
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
 
-    .quote-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.95);
-      text-align: center;
-      line-height: 1.6;
-      letter-spacing: 0.5px;
-    }
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
 
-    /* Login Card */
-    .login-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
-      padding: 50px 40px;
-      width: 400px;
-      min-height: 500px;
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
 
-    .login-card:hover {
-      transform: translateY(-5px);
-      box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-
-    .login-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.95);
-      text-align: center;
-      margin-bottom: 40px;
-      letter-spacing: 1px;
-    }
-
-    /* Form Styles */
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-    }
-
-    .input-label {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 8px;
-    }
-
-    .input-field {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 12px 0;
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.95);
-      font-family: 'Source Serif Pro', serif;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .input-field:focus {
-      border-bottom-color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 12px 15px;
-    }
-
-    /* Login Button */
-    .login-button {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      border: none;
-      border-radius: 25px;
-      padding: 15px 30px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 20px;
-      box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
-    }
-
-    .login-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
-      background: linear-gradient(135deg, #2a5298, #3b82f6);
-    }
-
-    /* Links */
-    .form-links {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .link {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-    }
-
-    .link:hover {
-      color: white;
-      text-decoration: underline;
-    }
-
-    /* Bottom Ellipsis */
-    .ellipsis {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-    }
-
-    .ellipsis span {
-      width: 6px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      animation: ellipsisPulse 2s ease-in-out infinite;
-    }
-
-    .ellipsis span:nth-child(2) { animation-delay: 0.3s; }
-    .ellipsis span:nth-child(3) { animation-delay: 0.6s; }
-
-    @keyframes ellipsisPulse {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
-  </style>
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+    </style>
 </head>
 <body>
-  <!-- Back Arrow -->
-  <div class="back-arrow" onclick="goBack()">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div>
 
-  <!-- Main Container -->
-  <div class="container">
-    <!-- Quote Card -->
-    <div class="quote-card">
-      <p class="quote-text">"Life is too short to spend it at war with yourself."</p>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/><path d="M8 4a1 1 0 0 0-1 1v3H5a1 1 0 0 0 0 2h2v3a1 1 0 0 0 2 0v-3h2a1 1 0 0 0 0-2H9V5a1 1 0 0 0-1-1z"/></svg>
+                </div>
+                <h1 class="auth-title">Welcome back</h1>
+                <p class="auth-desc">Enter your details to access your account.</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="name@university.edu" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div style="text-align: right; margin-bottom: 24px;">
+                    <a href="#" style="font-size: 12px; color: var(--text-muted); text-decoration: none;">Forgot password?</a>
+                </div>
+
+                <div id="loginError" class="alert alert-danger" style="display: none; font-size: 12px; padding: 10px; margin-bottom: 16px;"></div>
+
+                <button type="submit" class="btn btn-primary btn-auth" id="loginBtn">Sign in</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/signup/">Sign up</a>
+            </div>
+        </div>
     </div>
 
-    <!-- Login Card -->
-    <div class="login-card">
-      <h1 class="login-title">login</h1>
-      <form class="login-form" id="loginForm">
-        <div class="input-group">
-          <label for="email" class="input-label">Email ID</label>
-          <input type="email" id="email" name="email" class="input-field" required>
-        </div>
-        <div class="input-group">
-          <label for="password" class="input-label">Password</label>
-          <input type="password" id="password" name="password" class="input-field" required>
-        </div>
-        <button type="submit" class="login-button">login</button>
-      </form>
-      <div class="form-links">
-        <a href="/signup/" class="link" id="createAccount">create an account</a>
-        <a href="#" class="link" id="forgotPassword">forgot password?</a>
-      </div>
-    </div>
-  </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
 
-  <!-- Bottom Ellipsis -->
-  <div class="ellipsis">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            errorDiv.style.display = 'none';
 
-  <!-- Supabase JavaScript Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script>
-    // Supabase configuration - Replace with your actual values
-    const SUPABASE_URL = 'https://rsynefzafjjxtkaqybsy.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzeW5lZnphZmpqeHRrYXF5YnN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4Njg2MzMsImV4cCI6MjA3MzQ0NDYzM30.iss_kArkUT1OMcaioQ1jEYGP91K60N2OZhTf1QCa4Kc';
-    
-    // Initialize Supabase client
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // DOM Elements
-    const loginForm = document.getElementById('loginForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const loginButton = document.querySelector('.login-button');
-    const createAccountLink = document.getElementById('createAccount');
-    const forgotPasswordLink = document.getElementById('forgotPassword');
-    const backArrow = document.querySelector('.back-arrow');
+            try {
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
 
-    // Validation and Login
-    loginForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      
-      if (!email || !password) return showNotification('Please fill in all fields', 'error');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showNotification('Invalid email', 'error');
-      if (password.length < 6) return showNotification('Password too short', 'error');
-      
-      await handleLogin(email, password);
-    });
-
-    async function handleLogin(email, password) {
-      const originalText = loginButton.innerHTML;
-      loginButton.innerHTML = '<span class="loading-spinner"></span> Logging in...';
-      loginButton.disabled = true;
-      
-      try {
-        const response = await fetch('/api/login/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password
-          })
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = data.redirect_url || '/mindcare-home/';
+                } else {
+                    errorDiv.textContent = data.error || 'Invalid credentials';
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Sign in';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Sign in';
+            }
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          showNotification('Login successful! Welcome back.', 'success');
-          
-          // Store user data in localStorage
-          localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('access_token', data.access_token);
-          
-          // Redirect to MindCare homepage after 2 seconds
-          setTimeout(() => {
-            window.location.href = data.redirect_url || '/mindcare-home/';
-          }, 2000);
-        } else {
-          showNotification(data.error || 'Login failed', 'error');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        showNotification('An error occurred. Please try again.', 'error');
-      } finally {
-        loginButton.innerHTML = originalText;
-        loginButton.disabled = false;
-      }
-    }
-    
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-
-    function goBack() {
-      window.location.href = '/admin-student-portal/';
-    }
-
-    // Notification
-    function showNotification(message, type) {
-      const existing = document.querySelector('.notification');
-      if (existing) existing.remove();
-      const div = document.createElement('div');
-      div.className = `notification ${type}`;
-      div.style.cssText = "position:fixed;top:20px;right:20px;background:rgba(0,0,0,0.6);color:white;padding:10px 15px;border-radius:8px;";
-      div.innerHTML = message;
-      document.body.appendChild(div);
-      setTimeout(() => div.remove(), 3000);
-    }
-
-    // Spinner
-    const style = document.createElement('style');
-    style.textContent = `
-      .loading-spinner {
-        display:inline-block;
-        width:16px;height:16px;
-        border:2px solid rgba(255,255,255,0.3);
-        border-radius:50%;
-        border-top-color:white;
-        animation: spin 1s linear infinite;
-        margin-right:6px;
-      }
-      @keyframes spin { to { transform: rotate(360deg);} }
-    `;
-    document.head.appendChild(style);
-  </script>
+    </script>
 </body>
 </html>

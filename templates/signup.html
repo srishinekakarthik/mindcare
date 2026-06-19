@@ -3,471 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up Form</title>
+    <title>Create an Account — MindCare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/global.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: "Georgia", serif;
-            height: 100vh;
-            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+            background: var(--bg-primary);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
+            padding: 40px 20px;
         }
 
-        .back-arrow {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 10;
-            transition: color 0.3s ease;
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
         }
 
-        .back-arrow:hover {
-            color: white;
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
         }
 
-        .container {
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: -20px;
-            position: relative;
-            z-index: 5;
+            justify-content: center;
+            margin: 0 auto 16px;
         }
 
-        .signup-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px;
-            width: 400px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        .auth-logo svg {
+            width: 24px;
+            height: 24px;
+            color: #fff;
         }
 
-        .signup-card h1 {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 28px;
-            font-weight: 300;
-            text-align: center;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 16px;
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 8px;
-            font-weight: 300;
+            letter-spacing: -0.02em;
         }
 
-        .form-group input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 0;
-            color: white;
-            font-size: 16px;
-            font-family: "Georgia", serif;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-group input:focus {
-            border-bottom-color: rgba(255, 255, 255, 0.8);
-        }
-
-        .signin-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #4682B4, #191970);
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 18px;
-            font-family: "Georgia", serif;
-            font-weight: 300;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .signin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .signin-btn:active {
-            transform: translateY(0);
-        }
-
-        .account-link {
-            text-align: center;
-            margin-top: 20px;
-            color: rgba(255, 255, 255, 0.7);
+        .auth-desc {
             font-size: 14px;
-            font-weight: 300;
+            color: var(--text-secondary);
         }
 
-        .account-link a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .account-link a:hover {
-            color: white;
-        }
-
-        .quote-card {
-            background: rgba(70, 130, 180, 0.8);
-            border-radius: 20px;
-            padding: 30px;
-            width: 280px;
-            margin-left: -40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 1;
-        }
-
-        .quote-text {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 18px;
-            line-height: 1.6;
+        .auth-footer {
             text-align: center;
-            font-weight: 300;
-            font-style: italic;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .signup-card {
-                width: 350px;
-                padding: 30px;
-            }
-            
-            .quote-card {
-                width: 350px;
-                margin-left: 0;
-            }
-            
-            .back-arrow {
-                top: 20px;
-                left: 20px;
-            }
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
         }
 
-        @media (max-width: 480px) {
-            .signup-card {
-                width: 300px;
-                padding: 25px;
-            }
-            
-            .quote-card {
-                width: 300px;
-            }
+        .auth-footer a:hover {
+            text-decoration: underline;
         }
 
-        .error {
-            border-bottom-color: #ff6b6b !important;
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            margin-top: 16px;
         }
 
-        .success {
-            border-bottom-color: #51cf66 !important;
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .shake {
-            animation: shake 0.5s ease-in-out;
+        .role-option {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--bg-secondary);
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .role-option:hover {
+            border-color: var(--accent);
+        }
+
+        .role-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-subtle);
+            color: var(--accent);
+        }
+
+        .role-option-title {
+            font-size: 13px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="back-arrow" onclick="goBack()"></div>
 
-    <div class="container">
-        <div class="signup-card">
-            <h1>sign up</h1>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/><path d="M8 4a1 1 0 0 0-1 1v3H5a1 1 0 0 0 0 2h2v3a1 1 0 0 0 2 0v-3h2a1 1 0 0 0 0-2H9V5a1 1 0 0 0-1-1z"/></svg>
+                </div>
+                <h1 class="auth-title">Create an account</h1>
+                <p class="auth-desc">Join your campus mental health platform.</p>
+            </div>
+
             <form id="signupForm">
                 <div class="form-group">
-                    <label for="username">User name</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    <label class="form-label">I am a...</label>
+                    <div class="role-selector">
+                        <div class="role-option selected" onclick="selectRole('student', this)">
+                            <div class="role-option-title">Student</div>
+                        </div>
+                        <div class="role-option" onclick="selectRole('staff', this)">
+                            <div class="role-option-title">Staff / Faculty</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email ID</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="signin-btn">sign in</button>
-            </form>
-            <div class="account-link">
-                already have an account? <a href="/login/">Login here</a>
-            </div>
-        </div>
 
-        <div class="quote-card">
-            <div class="quote-text">
-                "Life is too short<br>
-                to spend it at war<br>
-                with yourself."
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">University Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="name@university.edu" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="institution">Institution</label>
+                    <select id="institution" class="form-select" required>
+                        <option value="" disabled selected>Select your university</option>
+                        <option value="Stanford University">Stanford University</option>
+                        <option value="MIT">MIT</option>
+                        <option value="Harvard University">Harvard University</option>
+                        <option value="UC Berkeley">UC Berkeley</option>
+                        <option value="Demo University">Demo University</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Create a password" required minlength="6">
+                </div>
+
+                <div id="signupError" class="alert alert-danger" style="display: none; font-size: 12px; padding: 10px; margin-bottom: 16px;"></div>
+
+                <button type="submit" class="btn btn-primary btn-auth" id="signupBtn">Sign up</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/login/">Log in</a>
             </div>
         </div>
     </div>
 
-    <!-- Supabase JavaScript Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script>
-        // Supabase configuration - Replace with your actual values
-        const SUPABASE_URL = 'https://rsynefzafjjxtkaqybsy.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzeW5lZnphZmpqeHRrYXF5YnN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4Njg2MzMsImV4cCI6MjA3MzQ0NDYzM30.iss_kArkUT1OMcaioQ1jEYGP91K60N2OZhTf1QCa4Kc';
-        
-        // Initialize Supabase client
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        document.getElementById("signupForm").addEventListener("submit", async function(e) {
+        let currentRole = 'student';
+
+        function selectRole(role, el) {
+            currentRole = role;
+            document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById("username");
-            const email = document.getElementById("email");
-            const password = document.getElementById("password");
-            
-            let isValid = true;
-            
-            [username, email, password].forEach(input => {
-                input.classList.remove("error", "success", "shake");
-            });
-            
-            if (username.value.trim().length < 3) {
-                username.classList.add("error", "shake");
-                isValid = false;
-            } else {
-                username.classList.add("success");
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email.value)) {
-                email.classList.add("error", "shake");
-                isValid = false;
-            } else {
-                email.classList.add("success");
-            }
-            
-            if (password.value.length < 6) {
-                password.classList.add("error", "shake");
-                isValid = false;
-            } else {
-                password.classList.add("success");
-            }
-            
-            if (isValid) {
-                await handleSignup(username.value, email.value, password.value);
-            }
-        });
-        
-        async function handleSignup(username, email, password) {
-            const button = document.querySelector(".signin-btn");
-            const originalText = button.textContent;
-            
-            button.textContent = "Creating Account...";
-            button.disabled = true;
-            
-            try {
-                // Get role from URL or default to student
-                const urlParams = new URLSearchParams(window.location.search);
-                const role = urlParams.get('role') || 'student';
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const institution = document.getElementById('institution').value;
+            const btn = document.getElementById('signupBtn');
+            const errorDiv = document.getElementById('signupError');
 
-                // Get institution name from URL or prompt
-                let institution = urlParams.get('institution');
-                if (!institution) {
-                    institution = prompt("Please enter your institution name:");
-                }
-                if (!institution) {
-                    showNotification("Institution name is required", "error");
-                    return;
-                }
-                
-                // Call Django API endpoint
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            errorDiv.style.display = 'none';
+
+            try {
                 const response = await fetch('/api/signup/', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password,
-                        institution: institution,
-                        role: role
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username, 
+                        email, 
+                        password, 
+                        institution,
+                        role: currentRole
                     })
                 });
                 
                 const data = await response.json();
-                
-                if (data.success) {
-                    showSuccessMessage();
-                    showNotification("Account created successfully! Welcome to MindCare!", "success");
-                    
-                    if (data.user) {
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                    }
 
-                    // Redirect to MindCare homepage after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url || '/mindcare-home/';
-                    }, 2000);
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = data.redirect_url || '/mindcare-home/';
                 } else {
-                    showNotification(data.error || "Failed to create account", "error");
+                    errorDiv.textContent = data.error || 'Failed to create account';
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Sign up';
                 }
-            } catch (error) {
-                console.error('Signup error:', error);
-                showNotification("An error occurred. Please try again.", "error");
-            } finally {
-                button.textContent = originalText;
-                button.disabled = false;
+            } catch (err) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Sign up';
             }
-        }
-        
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        
-        function showNotification(message, type) {
-            const existing = document.querySelector('.notification');
-            if (existing) existing.remove();
-            
-            const div = document.createElement('div');
-            div.className = `notification ${type}`;
-            div.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? 'rgba(81, 207, 102, 0.9)' : 'rgba(255, 107, 107, 0.9)'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                z-index: 1000;
-                font-family: 'Georgia', serif;
-                font-size: 14px;
-                max-width: 300px;
-            `;
-            div.innerHTML = message;
-            document.body.appendChild(div);
-            
-            setTimeout(() => {
-                div.style.opacity = '0';
-                div.style.transform = 'translateX(100%)';
-                div.style.transition = 'all 0.3s ease';
-                setTimeout(() => div.remove(), 300);
-            }, 5000);
-        }
-        
-        document.querySelectorAll("input").forEach(input => {
-            input.addEventListener("focus", function() {
-                this.parentElement.style.transform = "translateY(-2px)";
-            });
-            
-            input.addEventListener("blur", function() {
-                this.parentElement.style.transform = "translateY(0)";
-            });
-        });
-        
-        function goBack() {
-            document.querySelector(".back-arrow").style.transform = "translateX(-5px)";
-            setTimeout(() => {
-                document.querySelector(".back-arrow").style.transform = "translateX(0)";
-                window.location.href = '/admin-student-portal/';
-            }, 200);
-        }
-        
-        
-        function showSuccessMessage() {
-            const button = document.querySelector(".signin-btn");
-            const originalText = button.textContent;
-            
-            button.textContent = "Welcome!";
-            button.style.background = "linear-gradient(135deg, #51cf66, #40c057)";
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = "linear-gradient(135deg, #4682B4, #191970)";
-            }, 2000);
-        }
-        
-        document.querySelectorAll(".form-group").forEach(group => {
-            group.addEventListener("mouseenter", function() {
-                this.style.transform = "translateX(5px)";
-                this.style.transition = "transform 0.3s ease";
-            });
-            
-            group.addEventListener("mouseleave", function() {
-                this.style.transform = "translateX(0)";
-            });
-        });
-        
-        document.querySelector(".quote-card").addEventListener("mouseenter", function() {
-            this.style.transform = "translateY(-5px) scale(1.02)";
-            this.style.transition = "transform 0.3s ease";
-        });
-        
-        document.querySelector(".quote-card").addEventListener("mouseleave", function() {
-            this.style.transform = "translateY(0) scale(1)";
-        });
-        
-        document.addEventListener("mousemove", function(e) {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            
-            document.querySelector(".signup-card").style.transform = 
-                `translate(${x * 10 - 5}px, ${y * 10 - 5}px)`;
-            document.querySelector(".quote-card").style.transform = 
-                `translate(${x * -5 + 2.5}px, ${y * -5 + 2.5}px)`;
         });
     </script>
 </body>

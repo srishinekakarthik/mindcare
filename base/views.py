@@ -517,10 +517,10 @@ def gemini_chat_api(request):
     try:
         # Import functions locally to avoid import issues
         try:
-            from gemini_config import generate_mental_health_response, is_mental_health_related, get_off_topic_response
+            from gemini_config import generate_mental_health_response
         except ImportError as e:
             # Use fallback implementation when Google module is not available
-            from gemini_fallback import generate_mental_health_response, is_mental_health_related, get_off_topic_response
+            from gemini_fallback import generate_mental_health_response
         
         data = json.loads(request.body)
         user_message = data.get('message', '').strip()
@@ -536,17 +536,7 @@ def gemini_chat_api(request):
                 'error': 'Message cannot be empty'
             }, status=400)
         
-        # Check if message is mental health related
-        if not is_mental_health_related(user_message):
-            response_data = get_off_topic_response()
-            return JsonResponse({
-                'success': True,
-                'response': response_data['text'],
-                'safety_flags': response_data.get('safety_flags', []),
-                'redirect': response_data.get('redirect', False),
-                'model': 'gemini-mental-health-filter'
-            })
-        
+
         # Generate response using Gemini
         gemini_response = generate_mental_health_response(user_message, conversation_history)
         

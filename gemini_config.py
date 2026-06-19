@@ -1,5 +1,6 @@
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from datetime import datetime
 import logging
 
@@ -16,9 +17,14 @@ except Exception as e:
     # Additional fallback
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 
+client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    GEMINI_AVAILABLE = True
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        GEMINI_AVAILABLE = True
+    except Exception as e:
+        logger.error(f"Failed to initialize Gemini client: {e}")
+        GEMINI_AVAILABLE = False
 else:
     GEMINI_AVAILABLE = False
 
@@ -174,42 +180,39 @@ def get_feature_recommendations(user_message):
     
     return recommendations[:2]  # Return top 2 recommendations
 
-def get_gemini_model():
-    """Get the configured Gemini model for mental health support"""
+def get_gemini_config():
+    """Get the configured generation config for mental health support"""
     if not GEMINI_AVAILABLE:
         return None
     
     try:
-        model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash",
-            generation_config={
-                "temperature": 0.7,
-                "top_p": 0.8,
-                "top_k": 40,
-                "max_output_tokens": 1024,
-            },
+        config = types.GenerateContentConfig(
+            temperature=0.7,
+            top_p=0.8,
+            top_k=40,
+            max_output_tokens=1024,
             safety_settings=[
-                {
-                    "category": "HARM_CATEGORY_HARASSMENT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_HATE_SPEECH",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                }
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                    threshold=types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                    threshold=types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=types.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                ),
             ]
         )
-        return model
+        return config
     except Exception as e:
-        print(f"Error initializing Gemini model: {e}")
+        print(f"Error initializing Gemini config: {e}")
         return None
 
 def generate_mental_health_response(user_message, conversation_history=None):
@@ -230,12 +233,12 @@ def generate_mental_health_response(user_message, conversation_history=None):
             "error": "Gemini API not available"
         }
     
-    model = get_gemini_model()
-    if not model:
+    config = get_gemini_config()
+    if not config or not client:
         return {
             "text": "I'm experiencing technical difficulties. Please contact campus counseling for immediate support.",
             "safety_flags": [],
-            "error": "Model initialization failed"
+            "error": "Client or Config initialization failed"
         }
     
     try:
@@ -266,32 +269,21 @@ def generate_mental_health_response(user_message, conversation_history=None):
 # ...
         
         # Generate response
-        response = model.generate_content(
-            "\n".join(conversation_parts),
-            safety_settings=[
-                {
-                    "category": "HARM_CATEGORY_HARASSMENT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_HATE_SPEECH", 
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                },
-                {
-                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-                }
-            ]
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents="\n".join(conversation_parts),
+            config=config
         )
         
         # Check for safety issues
         safety_flags = []
-        if response.prompt_feedback and response.prompt_feedback.block_reason:
-            safety_flags.append("content_blocked")
+        # In new SDK, we check if response.text is empty and perhaps look at response.candidates[0].finish_reason
+        if not response.text:
+            try:
+                if response.candidates[0].finish_reason.name == "SAFETY":
+                    safety_flags.append("content_blocked")
+            except Exception:
+                pass
         
         # Extract response text
         response_text = response.text if response.text else "I understand you're reaching out for support. Could you please share more about what's on your mind?"

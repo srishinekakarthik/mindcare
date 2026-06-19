@@ -844,7 +844,43 @@
             
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.textContent = content;
+            
+            // Simple markdown parser
+            function parseMarkdown(text) {
+                if (!text) return '';
+                
+                // Escape HTML tags to prevent XSS
+                let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                // Parse bold text (**text**)
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Parse italics (*text*)
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Parse bullet points (• text or - text)
+                html = html.replace(/^[•\-]\s+(.*)$/gm, '<li>$1</li>');
+                
+                // Wrap adjacent list items in <ul>
+                html = html.replace(/(<li>.*<\/li>(\n<li>.*<\/li>)*)/g, '<ul>$1</ul>');
+                
+                // Parse line breaks (double newline = paragraph, single newline = <br>)
+                html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+                
+                // Wrap in paragraph if not already
+                if (!html.startsWith('<p>') && !html.startsWith('<ul>')) {
+                    html = '<p>' + html + '</p>';
+                }
+                
+                return html;
+            }
+
+            if (sender === 'ai') {
+                messageContent.innerHTML = parseMarkdown(content);
+            } else {
+                // For user messages, keep it safe as raw text to prevent XSS
+                messageContent.textContent = content;
+            }
             
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(messageContent);

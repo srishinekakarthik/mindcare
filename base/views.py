@@ -578,22 +578,7 @@ def gemini_chat_api(request):
             'fallback_response': "I'm experiencing technical difficulties. Please contact campus counseling for immediate support."
         }, status=500)
 
-def dashboard(request):
-    """Dashboard view after successful login"""
-    if request.user.is_authenticated:
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            context = {
-                'user': request.user,
-                'profile': user_profile,
-                'institution': user_profile.institution
-            }
-            return render(request, 'dashboard.html', context)
-        except UserProfile.DoesNotExist:
-            messages.error(request, 'User profile not found')
-            return redirect('login')
-    else:
-        return redirect('login')
+
 
 def analytics_dashboard(request):
     """Analytics dashboard view - admin only"""

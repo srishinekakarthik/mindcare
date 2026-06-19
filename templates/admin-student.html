@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Role</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: Georgia, serif;
+      background: url("{% static 'images/admin_student_bg.jpeg' %}") no-repeat center center/cover;
+      /* If you don’t want image, replace with gradient: */
+      /* background: linear-gradient(120deg, #f8b7c2, #c9a7d3); */
+      color: #2b2b2b;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 250px;
+      padding: 8px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      font-family: Georgia, serif;
+      border: none;
+      border-bottom: 1px solid #000;
+      outline: none;
+      background: transparent;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      display: block;
+      width: 200px;
+      padding: 15px;
+      margin: 15px auto;
+      background-color: #d2a6a6;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px #000;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 6px 6px 0px #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <input type="text" id="institution" placeholder="Enter institution name">
+    <h2>who do you want to operate as ?</h2>
+    <button class="btn" onclick="selectRole('Student')">Student</button>
+    <button class="btn" onclick="selectRole('Admin')">Admin</button>
+  </div>
+
+  <script>
+    function selectRole(role) {
+      const institution = document.getElementById('institution').value.trim();
+      if (!institution) {
+        alert("Please enter your institution name first.");
+        return;
+      }
+      
+      // Store institution in localStorage for signup
+      localStorage.setItem('selectedInstitution', institution);
+      localStorage.setItem('selectedRole', role);
+      
+      // Redirect to signup with role parameter
+      window.location.href = '/signup/?role=' + role.toLowerCase() + '&institution=' + encodeURIComponent(institution);
+    }
+    
+    // Load saved institution if available
+    window.addEventListener('load', function() {
+      const savedInstitution = localStorage.getItem('selectedInstitution');
+      if (savedInstitution) {
+        document.getElementById('institution').value = savedInstitution;
+      }
+    });
+  </script>
+
+</body>
+</html>
+

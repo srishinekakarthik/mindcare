@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support - MindCare Mental Health Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 64px;
+            background: linear-gradient(180deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .sidebar.expanded {
+            width: 280px;
+            padding: 20px;
+            align-items: flex-start;
+        }
+
+        .sidebar-hamburger {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            margin: 0 auto 24px auto;
+            transition: transform 0.3s ease;
+            padding: 4px;
+            border-radius: 4px;
+            position: relative;
+            z-index: 110;
+        }
+
+        .sidebar.expanded .sidebar-hamburger {
+            margin: 0 0 20px 0;
+            align-self: flex-start;
+        }
+
+        .sidebar-hamburger:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .sidebar-hamburger span {
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu {
+            list-style: none;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sidebar.expanded .nav-menu {
+            align-items: flex-start;
+        }
+
+        .nav-item {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            margin-bottom: 4px;
+            box-sizing: border-box;
+        }
+
+        .nav-link {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 16px;
+            text-decoration: none;
+            color: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .sidebar:not(.expanded) .nav-link {
+            justify-content: center;
+            padding: 0;
+        }
+
+        .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .nav-link:focus {
+            outline: 2px solid rgba(255,255,255,0.5);
+            outline-offset: 2px;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .nav-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            overflow: hidden;
+            width: 0;
+            line-height: 24px;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            visibility: visible;
+            width: auto;
+        }
+
+        /* Sidebar Title */
+        .sidebar-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.3;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0 8px;
+            width: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.expanded .sidebar-title {
+            opacity: 1;
+            visibility: visible;
+            text-align: left;
+            width: auto;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 50%, #f9e79f 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 30px 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .crisis-contact {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crisis-contact:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .ai-info {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .ai-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-features {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tags {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .feature-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .feature-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255,255,255,0.95);
+            margin: 0 40px 40px 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 400px;
+            background: linear-gradient(to bottom, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .message.ai .message-content {
+            background: rgba(102, 126, 234, 0.1);
+            color: #333;
+            border-bottom-left-radius: 8px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+            border-bottom-left-radius: 8px;
+            max-width: 70px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typingPulse 1.4s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingPulse {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(1); }
+            30% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 25px 30px;
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e0e7ff;
+            border-radius: 25px;
+            padding: 15px 20px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .clear-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+            margin-right: 10px;
+        }
+
+        .clear-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .clear-button:active {
+            transform: translateY(0);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .send-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            text-align: center;
+            padding: 15px 30px;
+            color: #666;
+            font-size: 12px;
+            background: rgba(0,0,0,0.02);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.expanded {
+                left: 0;
+            }
+
+            /* Mobile overlay */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+
+            .sidebar.expanded ~ .sidebar-overlay,
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            /* Mobile hamburger in header */
+            .mobile-hamburger {
+                display: flex;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                flex-direction: column;
+                justify-content: space-around;
+                padding: 4px;
+                border-radius: 4px;
+                z-index: 1001;
+                margin-right: 15px;
+            }
+
+            .mobile-hamburger span {
+                width: 100%;
+                height: 2px;
+                background-color: white;
+                border-radius: 1px;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-hamburger:hover {
+                background-color: rgba(255,255,255,0.1);
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .chat-container {
+                margin: 0 20px 20px 20px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Desktop: Show hamburger in sidebar, hide mobile hamburger */
+        @media (min-width: 769px) {
+            .mobile-hamburger {
+                display: none;
+            }
+        }
+
+        /* Welcome Message Styles */
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .suggested-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .prompt-suggestion {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .prompt-suggestion:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-hamburger" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <h1 class="sidebar-title">AI Support</h1>
+        
+        <ul class="nav-menu">
+            <li class="nav-item" data-route="/mindcare-home/">
+                <a href="/mindcare-home/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUwxMiAyTDIxIDlWMTlIMTNWMTNIMTFWMTlIM1Y5WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Home" class="nav-icon">
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+            <li class="nav-item active" data-route="/ai-support/">
+                <a href="/ai-support/" class="nav-link" aria-current="page">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCAxMEgxNlYxMkg4VjEwWk04IDE0SDE2VjE2SDhWMTQiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="AI Chatbot" class="nav-icon">
+                    <span class="nav-text">AI Chatbot</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="/book-session/">
+                <a href="/book-session/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5IDNINUMzLjg5NSA0IDMgNC44OTUgMyA2VjE4QzMgMTkuMTA1IDMuODk1IDIwIDUgMjBIMTlDMjAuMTA1IDIwIDIxIDE5LjEwNSAyMSAxOFY2QzIxIDQuODk1IDIwLjEwNSA0IDE5IDRaTTE5IDE4SDVWNkgxOVYxOFpNMTcgOEg3VjEwSDE3VjhaTTE3IDEySDdWMTBIMTdWMTJaTTE3IDE2SDdWMTBIMTdWMTYiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Book Sessions" class="nav-icon">
+                    <span class="nav-text">Book Sessions</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="/resources/">
+                <a href="/resources/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkM0IDQuODk1IDQuODk1IDQgNiA0SDE4QzE5LjEwNSA0IDIwIDQuODk1IDIwIDZWMThDMjAgMTkuMTA1IDE5LjEwNSAyMCAxOCAyMEg2QzQuODk1IDIwIDQgMTkuMTA1IDQgMThWNlpNNiA2VjE4SDE4VjZINlpNOCA4SDE2VjEwSDhWOFpNOCAxMkgxNlYxNEg4VjEyWiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Resources" class="nav-icon">
+                    <span class="nav-text">Resources</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="/self-assessment/">
+                <a href="/self-assessment/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJIMTVWMTBIOVYxMlpNOSAxNkgxNVYxNEg5VjE2Wk0xOSA0SDE0VjJIMTJWNEg1QzMuODk1IDQgMyA0Ljg5NSAzIDZWMThDMyAxOS4xMDUgMy44OTUgMjAgNSAyMEgxOUMyMC4xMDUgMjAgMjEgMTkuMTA1IDIxIDE4VjZDMjEgNC44OTUgMjAuMTA1IDQgMTkgNFpNMTkgMThINVY2SDE5VjE4Wk0xNyA4SDdWMTBIMTdWOFpNMTcgMTJIN1YxMEgxN1YxMlpNMTcgMTZIN1YxMEgxN1YxNiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Self-Assessment" class="nav-icon">
+                    <span class="nav-text">Self-Assessment</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="/mood-tracker/">
+                <a href="/mood-tracker/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNMTIgNkM4LjY5MSA2IDYgOC42OTEgNiAxMlM4LjY5MSAxOCAxMiAxOFMxOCAxNS4zMDkgMTggMTJTMTUuMzA5IDYgMTIgNlpNMTIgMTZDOS43OTEgMTYgOCAxNC4yMDkgOCAxMlM5Ljc5MSA4IDEyIDhTMTYgOS43OTEgMTYgMTJTMTQuMjA5IDE2IDEyIDE2WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Mood Tracker" class="nav-icon">
+                    <span class="nav-text">Mood Tracker</span>
+                </a>
+            </li>
+            <li class="nav-item" data-route="/peer-support/">
+                <a href="/peer-support/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCA5QzguNTUyIDkgOSA4LjU1MiA5IDhDOC41NTIgOCA4IDguNTUyIDggOVM4LjU1MiAxMCA5IDEwUzEwIDkuNDQ4IDEwIDlTOS40NDggOCA5IDhaTTE1IDlDMTUuNTUyIDkgMTYgOC41NTIgMTYgOEMxNiA3LjQ0OCAxNS41NTIgNyAxNSA3UzE0IDcuNDQ4IDE0IDhTMTQuNDQ4IDkgMTUgOVpNMTIgMTVDMTMuNjYgMTUgMTUuMTMgMTQuMTMgMTUuNzMgMTIuNzNDMTUuODggMTIuNDcgMTUuNzMgMTIuMTMgMTUuNDcgMTEuOThDMTUuMjEgMTEuODMgMTQuODcgMTEuOTggMTQuNzIgMTIuMjRDMTQuMzMgMTMuMjYgMTMuMjYgMTQgMTIgMTRTOS42NyAxMy4yNiA5LjI4IDEyLjI0QzkuMTMgMTEuOTggOC43OSAxMS44MyA4LjUzIDExLjk4QzguMjcgMTIuMTMgOC4xMiAxMi40NyA4LjI3IDEyLjczQzguODcgMTQuMTMgMTAuMzQgMTUgMTIgMTVaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Peer Support" class="nav-icon">
+                    <span class="nav-text">Peer Support</span>
+                </a>
+            </li>
+            <li class="nav-item admin-only" id="analyticsMenuItem" style="display: none;" data-route="/dashboard/">
+                <a href="/dashboard/" class="nav-link">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogICAgPCEtLSBDaGFydCBiYXJzIHdpdGggZGF0YSBwb2ludHMgLS0+DQogICAgPCEtLSBCYXIgMSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjMiIHk9IjE2IiB3aWR0aD0iMyIgaGVpZ2h0PSI1IiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgMiAobWVkaXVtKSAtLT4NCiAgICA8cmVjdCB4PSI3IiB5PSIxMiIgd2lkdGg9IjMiIGhlaWdodD0iOSIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDMgKHRhbGwpIC0tPg0KICAgIDxyZWN0IHg9IjExIiB5PSI4IiB3aWR0aD0iMyIgaGVpZ2h0PSIxMyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDQgKG1lZGl1bS10YWxsKSAtLT4NCiAgICA8cmVjdCB4PSIxNSIgeT0iMTAiIHdpZHRoPSIzIiBoZWlnaHQ9IjExIiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgNSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjE5IiB5PSIxNCIgd2lkdGg9IjMiIGhlaWdodD0iNyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIA0KICAgIDwhLS0gRGF0YSB0cmVuZCBsaW5lIGNvbm5lY3RpbmcgdGhlIGJhcnMgLS0+DQogICAgPHBhdGggZD0iTTQuNSAxOC41IEw4LjUgMTQuNSBMMTIuNSAxMC41IEwxNi41IDEyLjUgTDIwLjUgMTYuNSIgDQogICAgICAgICAgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIA0KICAgICAgICAgIHN0cm9rZS13aWR0aD0iMS41IiANCiAgICAgICAgICBzdHJva2UtbGluZWNhcD0icm91bmQiIA0KICAgICAgICAgIHN0cm9rZS1saW5lam9pbj0icm91bmQiIA0KICAgICAgICAgIGZpbGw9Im5vbmUiLz4NCiAgICANCiAgICA8IS0tIERhdGEgcG9pbnRzIG9uIHRoZSB0cmVuZCBsaW5lIC0tPg0KICAgIDxjaXJjbGUgY3g9IjQuNSIgY3k9IjE4LjUiIHI9IjEuNSIgZmlsbD0iY3VycmVudENvbG9yIi8+DQogICAgPGNpcmNsZSBjeD0iOC41IiBjeT0iMTQuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxMi41IiBjeT0iMTAuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNi41IiBjeT0iMTIuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIyMC41IiBjeT0iMTYuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCjwvc3ZnPg0K" alt="Analytics" class="nav-icon">
+                    <span class="nav-text">Analytics</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Logout Button -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <!-- Mobile hamburger (visible only on mobile) -->
+                <div class="mobile-hamburger" onclick="toggleSidebar()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <h1 class="page-title" id="pageTitle">AI Support</h1>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <select id="languageSelector" onchange="changeLanguage()" style="padding: 5px 10px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.9); font-size: 12px;">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="hi">🇮🇳 हिंदी</option>
+                    </select>
+                    <div class="crisis-contact" onclick="showCrisisContact()">
+                        <span id="crisisText">Crisis: 1800-XXX-XXXX</span>
+                    </div>
+                </div>
+            </div>
+            <p class="subtitle" id="subtitle">Get immediate AI-powered support and guidance</p>
+            
+            <div class="ai-info">
+                <h2 class="ai-title">
+                    <span>🤖</span>
+                    <span id="aiTitle">AI Mental Health Assistant</span>
+                </h2>
+                <p class="ai-features" id="aiFeatures">Confidential • Available 24/7 • Culturally Aware</p>
+                <div class="feature-tags">
+                    <div class="feature-tag">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Heart" class="feature-icon">
+                        <span>Emotional Support</span>
+                    </div>
+                    <div class="feature-tag">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNMTEgN0gxM1YxM0gxMVY3Wk0xMSAxNUgxM1YxN0gxMVYxNVoiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Alert" class="feature-icon">
+                        <span>Crisis Detection</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h3 class="welcome-title">Welcome to AI Mental Health Support</h3>
+                    <p class="welcome-text">I'm here to listen and provide support. You can talk to me about anything that's on your mind. Our conversation is completely confidential.</p>
+                    <div class="suggested-prompts">
+                        <div class="prompt-suggestion" onclick="sendSuggestedPrompt('I\'m feeling anxious today')">I'm feeling anxious today</div>
+                        <div class="prompt-suggestion" onclick="sendSuggestedPrompt('I need help with stress management')">Help with stress management</div>
+                        <div class="prompt-suggestion" onclick="sendSuggestedPrompt('I\'m having trouble sleeping')">Trouble sleeping</div>
+                        <div class="prompt-suggestion" onclick="sendSuggestedPrompt('I feel overwhelmed with school')">Overwhelmed with school</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Share what's on your mind...I'm here to listen and support you." maxlength="500">
+                <button class="clear-button" onclick="clearChat()" id="clearButton" title="Clear conversation">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEwIDEzSDE0VjE3SDEwVjEzWk0xMCA3SDE0VjExSDEwVjdaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Clear Chat" class="clear-icon">
+                </button>
+                <button class="send-button" onclick="sendMessage()" id="sendButton">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMjFMMjMgMTJMMiAzVjEwTDE3IDEyTDIgMTRWMjFaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Send" class="send-icon">
+                </button>
+            </div>
+            
+            <div class="disclaimer" id="disclaimer">
+                This AI assistant provides initial support for urgent situations, please contact emergency services or campus counselling immediately.
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <script>
+        // Chat functionality
+        let chatHistory = [];
+        let isTyping = false;
+
+        // Initialize chat
+        // Check user role and show/hide admin features
+        function checkUserRole() {
+            try {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    
+                    if (user.role === 'admin' && analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'block';
+                    } else if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                } else {
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+                const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                if (analyticsMenuItem) {
+                    analyticsMenuItem.style.display = 'none';
+                }
+            }
+        }
+
+        // Set active navigation item based on current route
+        function setActiveNavItem() {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            // Remove active class and aria-current from all nav items
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                const link = item.querySelector('.nav-link');
+                if (link) {
+                    link.removeAttribute('aria-current');
+                }
+            });
+            
+            // Find and activate the matching route
+            navItems.forEach(item => {
+                const route = item.getAttribute('data-route');
+                if (route && currentPath === route) {
+                    item.classList.add('active');
+                    const link = item.querySelector('.nav-link');
+                    if (link) {
+                        link.setAttribute('aria-current', 'page');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set active nav item based on current route
+            setActiveNavItem();
+            
+            // Check user role and show/hide admin features
+            checkUserRole();
+            
+            // Add navigation event listeners
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Allow default navigation for same-origin links
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('/') && !href.startsWith('#')) {
+                        // Let the browser handle the navigation
+                        return;
+                    }
+                    e.preventDefault();
+                });
+            });
+            
+            // Add event listener for Enter key
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        // Send message function
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            const originalHistoryLength = chatHistory.length;
+            if (!message || isTyping) return;
+            
+            // Clear input
+            input.value = '';
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            const previousConversationHistory = chatHistory.slice(0, chatHistory.length - 1);
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Call Gemini API
+                console.log('Sending message with conversation history:',  previousConversationHistory.length, 'messages');
+                const response = await fetch('/api/gemini-chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        message: message, // Still send the message separately
+                        conversation_history: chatHistory // Send the full history, including the current message
+                    })
+                });
+                
+                const data = await response.json();
+                hideTypingIndicator();
+                
+                if (data.success) {
+                    // Add AI response to chat
+                    addMessage(data.response, 'ai');
+                    
+                    // Handle crisis detection
+                    if (data.crisis_detected) {
+                        showNotification('Crisis support resources have been provided. Please reach out to professional help if needed.', 'warning');
+                    }
+                    
+                    // Handle off-topic redirect
+                    if (data.redirect) {
+                        showNotification('I\'m here to help with mental health topics. Feel free to share what\'s on your mind!', 'info');
+                    }
+                } else {
+                    // Fallback response
+                    const fallbackResponse = data.fallback_response || "I'm here to listen and support you. Could you tell me more about what's on your mind?";
+                    addMessage(fallbackResponse, 'ai');
+                    showNotification('Using fallback response. Please try again.', 'info');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Error calling Gemini API:', error);
+                
+                // Enhanced fallback to local response
+                const fallbackResponse = generateEnhancedFallbackResponse(message);
+                addMessage(fallbackResponse, 'ai');
+                showNotification('Using enhanced local response. Please set up Gemini API key for more intelligent responses.', 'info');
+            }
+        }
+
+        // Send suggested prompt
+        function sendSuggestedPrompt(prompt) {
+            document.getElementById('chatInput').value = prompt;
+            sendMessage();
+        }
+
+        // Add message to chat
+        function addMessage(content, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove welcome message if it exists
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = sender === 'ai' ? '🤖' : 'You';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Store in chat history
+            chatHistory.push({ sender, content, timestamp: new Date() });
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            isTyping = true;
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            messageDiv.id = 'typingIndicator';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = '🤖';
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.style.display = 'block';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(typingDiv);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            isTyping = false;
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Language content and multilingual support
+        const LANGUAGE_CONTENT = {
+            en: {
+                aiResponses: {
+                    anxiety: [
+                        "I understand you're feeling anxious. Try the 4-7-8 breathing technique: Inhale for 4 counts, hold for 7, exhale for 8. This can help calm your nervous system.",
+                        "Anxiety is very common among students. Would you like me to guide you through a quick grounding exercise? It involves focusing on 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste."
+                    ],
+                    depression: [
+                        "I hear that you might be struggling with low mood. Remember that seeking help is a sign of strength. Have you been able to maintain your daily routines like eating and sleeping?",
+                        "Depression can make everything feel overwhelming. Small steps matter - even getting dressed or having a meal is an achievement."
+                    ],
+                    stress: [
+                        "Academic stress is very real. Let's break this down - what's the most pressing concern right now? Sometimes tackling one thing at a time makes everything more manageable.",
+                        "Stress can be managed with proper techniques. Consider the Pomodoro technique for studying, regular breaks, and don't forget to connect with friends or family."
+                    ],
+                    crisis: [
+                        "I'm really concerned about what you're going through. Your safety is the most important thing right now. Please reach out to a crisis counselor immediately at 1800-XXX-XXXX or contact emergency services.",
+                        "This sounds like you need immediate support. Please don't go through this alone - our counselling team is here to help, and all conversations are completely confidential."
+                    ],
+                    general: [
+                        "Thank you for reaching out. It takes courage to talk about mental health. How can I best support you today?",
+                        "I'm here to listen and provide support. What's been on your mind lately?",
+                        "Mental health is just as important as physical health. What would you like to explore or discuss?"
+                    ]
+                },
+                keywords: {
+                    crisis: ['suicide', 'kill myself', 'end it all', 'hurt myself', 'die', 'hopeless', 'worthless', 'want to die', 'no point living'],
+                    anxiety: ['anxious', 'anxiety', 'panic', 'worried', 'nervous', 'overwhelmed', 'stress', 'exam', 'fear', 'scared'],
+                    depression: ['depressed', 'depression', 'sad', 'lonely', 'empty', 'tired', 'hopeless', 'numb', 'crying']
+                }
+            },
+            hi: {
+                aiResponses: {
+                    anxiety: [
+                        "मैं समझ रहा हूं कि आप चिंतित महसूस कर रहे हैं। 4-7-8 सांस की तकनीक आज़माएं: 4 गिनती तक सांस लें, 7 तक रोकें, 8 तक छोड़ें।",
+                        "परीक्षा या पढ़ाई का tension हो रहा है? यह बिल्कुल normal है। आइए कुछ breathing exercises करते हैं जो तुरंत relief देती हैं।"
+                    ],
+                    depression: [
+                        "मैं सुन रहा हूं कि आप उदास मूड से जूझ रहे हैं। याद रखें कि मदद मांगना शक्ति का संकेत है।",
+                        "डिप्रेशन सब कुछ भारी लगा सकता है। छोटे कदम मायने रखते हैं - यहां तक कि कपड़े पहनना या खाना खाना भी एक उपलब्धि है।"
+                    ],
+                    stress: [
+                        "शैक्षणिक तनाव बहुत वास्तविक है। आइए इसे तोड़ते हैं - अभी सबसे दबाव वाली चिंता क्या है?",
+                        "तनाव को उचित तकनीकों से प्रबंधित किया जा सकता है। पढ़ाई के लिए पोमोडोरो तकनीक का विचार करें।"
+                    ],
+                    crisis: [
+                        "मुझे जो आप साझा कर रहे हैं उसकी चिंता है। आपकी सुरक्षा अभी सबसे महत्वपूर्ण चीज़ है। कृपया तुरंत हमारे कैंपस काउंसलर से संपर्क करें।",
+                        "लगता है कि आपको तत्काल सहायता की आवश्यकता है। कृपया इसे अकेले न झेलें - हमारी काउंसलिंग टीम मदद के लिए यहां है।"
+                    ],
+                    general: [
+                        "संपर्क करने के लिए धन्यवाद। मानसिक स्वास्थ्य के बारे में बात करने में हिम्मत लगती है। आज मैं आपकी सबसे अच्छी सहायता कैसे कर सकता हूं?",
+                        "Kya haal hai? Aap bilkul free feel kar sakte hain यहां share करने के लिए। मैं समझूंगा और help करने की कोशिश करूंगा।"
+                    ]
+                },
+                keywords: {
+                    crisis: ['आत्महत्या', 'खुद को चोट', 'सब खत्म', 'मरना', 'निराश', 'बेकार', 'aatmahatya', 'suicide karna', 'marna', 'bekaar', 'jeena nahi chahta'],
+                    anxiety: ['चिंतित', 'घबराहट', 'परेशान', 'तनाव', 'परीक्षा', 'chinta', 'ghabrahat', 'pareshan', 'tension', 'exam ka dar', 'panic'],
+                    depression: ['उदास', 'डिप्रेशन', 'अकेला', 'खाली', 'थका हुआ', 'udaas', 'depression', 'akela', 'khali', 'tired', 'mood kharab']
+                }
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        // UI Content for different languages
+        const UI_CONTENT = {
+            en: {
+                pageTitle: "AI Support",
+                subtitle: "Get immediate AI-powered support and guidance",
+                aiTitle: "AI Mental Health Assistant", 
+                aiFeatures: "Confidential • Available 24/7 • Culturally Aware",
+                emotionalSupport: "Emotional Support",
+                crisisDetection: "Crisis Detection",
+                placeholder: "Share what's on your mind...I'm here to listen and support you.",
+                disclaimer: "This AI assistant provides initial support for urgent situations, please contact emergency services or campus counselling immediately.",
+                crisisText: "Crisis: 1800-XXX-XXXX",
+                welcomeTitle: "Welcome to AI Mental Health Support",
+                welcomeText: "I'm here to listen and provide support. You can talk to me about anything that's on your mind. Our conversation is completely confidential.",
+                suggestions: [
+                    "I'm feeling anxious today",
+                    "I need help with stress management", 
+                    "I'm having trouble sleeping",
+                    "I feel overwhelmed with school"
+                ]
+            },
+            hi: {
+                pageTitle: "AI सहायता",
+                subtitle: "तत्काल AI-संचालित सहायता और मार्गदर्शन प्राप्त करें",
+                aiTitle: "AI मानसिक स्वास्थ्य सहायक",
+                aiFeatures: "गोपनीय • 24/7 उपलब्ध • सांस्कृतिक रूप से जागरूक", 
+                emotionalSupport: "भावनात्मक सहायता",
+                crisisDetection: "संकट पहचान",
+                placeholder: "अपने मन की बात साझा करें...मैं सुनने और आपकी सहायता करने के लिए यहां हूं।",
+                disclaimer: "यह AI सहायक प्रारंभिक सहायता प्रदान करता है। आपातकालीन स्थितियों के लिए, कृपया तुरंत आपातकालीन सेवाओं या कैंपस काउंसलिंग से संपर्क करें।",
+                crisisText: "संकट: 1800-XXX-XXXX",
+                welcomeTitle: "AI मानसिक स्वास्थ्य सहायता में आपका स्वागत है",
+                welcomeText: "मैं सुनने और सहायता प्रदान करने के लिए यहां हूं। आप अपने मन में जो कुछ भी है उसके बारे में मुझसे बात कर सकते हैं। हमारी बातचीत पूरी तरह से गोपनीय है।",
+                suggestions: [
+                    "आज मैं चिंतित महसूस कर रहा हूं",
+                    "मुझे तनाव प्रबंधन में मदद चाहिए",
+                    "मुझे नींद आने में परेशानी हो रही है", 
+                    "मैं स्कूल से परेशान महसूस कर रहा हूं"
+                ]
+            }
+        };
+
+        function changeLanguage() {
+            const selector = document.getElementById('languageSelector');
+            currentLanguage = selector.value;
+            
+            const content = UI_CONTENT[currentLanguage];
+            
+            // Update UI elements
+            document.getElementById('pageTitle').textContent = content.pageTitle;
+            document.getElementById('subtitle').textContent = content.subtitle;
+            document.getElementById('aiTitle').textContent = content.aiTitle;
+            document.getElementById('aiFeatures').textContent = content.aiFeatures;
+            document.getElementById('crisisText').textContent = content.crisisText;
+            document.getElementById('chatInput').placeholder = content.placeholder;
+            document.getElementById('disclaimer').textContent = content.disclaimer;
+            
+            // Update feature tags
+            const featureTags = document.querySelectorAll('.feature-tag span');
+            if (featureTags.length >= 2) {
+                featureTags[0].textContent = content.emotionalSupport;
+                featureTags[1].textContent = content.crisisDetection;
+            }
+            
+            // Reset chat with new welcome message
+            resetChatWithLanguage();
+        }
+
+        function resetChatWithLanguage() {
+            const content = UI_CONTENT[currentLanguage];
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Only reset chat if there's no conversation history
+            if (chatHistory.length === 0) {
+                messagesContainer.innerHTML = `
+                    <div class="welcome-message">
+                        <h3 class="welcome-title">${content.welcomeTitle}</h3>
+                        <p class="welcome-text">${content.welcomeText}</p>
+                        <div class="suggested-prompts">
+                            ${content.suggestions.map(suggestion => 
+                                `<div class="prompt-suggestion" onclick="sendSuggestedPrompt('${suggestion}')">${suggestion}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // If there's conversation history, just update the welcome message if it exists
+                const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.innerHTML = `
+                        <h3 class="welcome-title">${content.welcomeTitle}</h3>
+                        <p class="welcome-text">${content.welcomeText}</p>
+                        <div class="suggested-prompts">
+                            ${content.suggestions.map(suggestion => 
+                                `<div class="prompt-suggestion" onclick="sendSuggestedPrompt('${suggestion}')">${suggestion}</div>`
+                            ).join('')}
+                        </div>
+                    `;
+                }
+            }
+            
+            // Don't clear chat history - preserve conversation context
+        }
+
+        function clearChat() {
+            // Clear the conversation history
+            chatHistory = [];
+            
+            // Reset the chat display
+            resetChatWithLanguage();
+            
+            // Show notification
+            showNotification('Chat cleared. Starting fresh conversation.', 'info');
+        }
+
+        function detectLanguage(text) {
+            const hindiPattern = /[\u0900-\u097F]/;
+            const hindiWords = ['hai', 'hoon', 'hun', 'nahi', 'kya', 'aur', 'mein', 'main', 'ko', 'ka', 'ki', 'ke', 'se', 'me'];
+            
+            if (hindiPattern.test(text)) return 'hi';
+            
+            const words = text.toLowerCase().split(' ');
+            const hindiWordCount = words.filter(word => hindiWords.includes(word)).length;
+            
+            return hindiWordCount > words.length * 0.2 ? 'hi' : 'en';
+        }
+
+        function analyzeMessage(text) {
+            const detectedLang = detectLanguage(text);
+            currentLanguage = detectedLang;
+            const lowerText = text.toLowerCase();
+            
+            const allCrisisKeywords = [...LANGUAGE_CONTENT.en.keywords.crisis, ...LANGUAGE_CONTENT.hi.keywords.crisis];
+            if (allCrisisKeywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
+                return { category: 'crisis', severity: 'high', referral: true, language: detectedLang };
+            }
+            
+            const allAnxietyKeywords = [...LANGUAGE_CONTENT.en.keywords.anxiety, ...LANGUAGE_CONTENT.hi.keywords.anxiety];
+            if (allAnxietyKeywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
+                return { category: 'anxiety', severity: 'medium', referral: false, language: detectedLang };
+            }
+            
+            const allDepressionKeywords = [...LANGUAGE_CONTENT.en.keywords.depression, ...LANGUAGE_CONTENT.hi.keywords.depression];
+            if (allDepressionKeywords.some(keyword => lowerText.includes(keyword.toLowerCase()))) {
+                return { category: 'depression', severity: 'medium', referral: false, language: detectedLang };
+            }
+            
+            return { category: 'general', severity: 'low', referral: false, language: detectedLang };
+        }
+
+        // Generate AI response with multilingual support
+        function generateAIResponse(userMessage) {
+            const analysis = analyzeMessage(userMessage);
+            const content = LANGUAGE_CONTENT[analysis.language];
+            
+            const responses = content.aiResponses[analysis.category] || content.aiResponses.general;
+            let response = responses[Math.floor(Math.random() * responses.length)];
+            
+            if (analysis.referral) {
+                const immediateSupport = analysis.language === 'hi' 
+                    ? "\n\n🔴 तत्काल सहायता उपलब्ध:\n• कैंपस काउंसलर: सोम-शुक्र 9AM-5PM\n• संकट हेल्पलाइन: 1800-XXX-XXXX (24/7)\n• आपातकाल: 911 कॉल करें"
+                    : "\n\n🔴 Immediate Support Available:\n• Campus Counsellor: Mon-Fri 9AM-5PM\n• Crisis Helpline: 1800-XXX-XXXX (24/7)\n• Emergency: Call 911";
+                response += immediateSupport;
+            } else if (analysis.severity === 'medium') {
+                const resources = analysis.language === 'hi'
+                    ? "\n\n💙 उपलब्ध संसाधन:\n• काउंसलिंग अपॉइंटमेंट बुक करें\n• वेलनेस लाइब्रेरी देखें\n• साथी सहायता समूहों से जुड़ें"
+                    : "\n\n💙 Resources Available:\n• Book counselling appointment\n• Explore wellness library\n• Connect with peer support groups";
+                response += resources;
+            }
+            
+            return response;
+        }
+
+        // Enhanced fallback response for when Gemini API is not available
+        function generateEnhancedFallbackResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Crisis detection
+            const crisisKeywords = ['suicide', 'kill myself', 'end it all', 'hurt myself', 'die', 'hopeless', 'worthless', 'not want to live', 'end my life'];
+            if (crisisKeywords.some(keyword => lowerMessage.includes(keyword))) {
+                return `🚨 I'm really concerned about what you're sharing. Your safety is the most important thing right now. Please reach out to a crisis counselor immediately or call the mental health helpline at 1800-XXX-XXXX (24/7). You don't have to go through this alone - there are people who want to help you. Your life has value and meaning, even when it doesn't feel that way.
+
+🔴 IMMEDIATE SUPPORT:
+• Campus Counsellor: Mon-Fri 9AM-5PM
+• Crisis Helpline: 1800-XXX-XXXX (24/7)
+• Emergency: Call 911 or campus security
+• National Suicide Prevention Lifeline: 988`;
+            }
+            
+            // Anxiety support
+            if (lowerMessage.includes('anxious') || lowerMessage.includes('anxiety') || lowerMessage.includes('worried') || lowerMessage.includes('nervous') || lowerMessage.includes('panic')) {
+                return `I understand that anxiety can feel overwhelming and scary. It's completely normal to feel this way, especially during stressful times. Here are some techniques that might help:
+
+🧘 BREATHING TECHNIQUES:
+• 4-7-8 breathing: Inhale for 4 counts, hold for 7, exhale for 8
+• Box breathing: Inhale 4, hold 4, exhale 4, hold 4
+• Belly breathing: Focus on breathing into your diaphragm
+
+🎯 GROUNDING TECHNIQUES:
+• 5-4-3-2-1: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste
+• Progressive muscle relaxation
+• Mindfulness meditation
+
+💙 RESOURCES AVAILABLE:
+• Book a counseling session through our platform
+• Join our anxiety support groups
+• Access our wellness library for more techniques
+
+What's making you feel anxious right now? I'm here to help you work through it.`;
+            }
+            
+            // Depression support
+            if (lowerMessage.includes('depressed') || lowerMessage.includes('sad') || lowerMessage.includes('down') || lowerMessage.includes('hopeless') || lowerMessage.includes('empty')) {
+                return `I hear that you're going through a really difficult time. Depression can make everything feel heavy and overwhelming, like you're carrying a weight that never lifts. Please know that:
+
+💙 YOU ARE NOT ALONE:
+• Your feelings are valid and temporary
+• Seeking help is a sign of strength, not weakness
+• Small steps matter - even getting out of bed or having a meal is an achievement
+• Depression is treatable and manageable
+
+🛠️ COPING STRATEGIES:
+• Maintain a daily routine, even if it's simple
+• Stay connected with friends and family
+• Get some sunlight and fresh air daily
+• Practice self-compassion - be kind to yourself
+• Consider our depression support groups
+
+📞 PROFESSIONAL SUPPORT:
+• Book a counseling session through our platform
+• Our campus counselors specialize in depression support
+• Consider reaching out to a mental health professional
+
+What's been weighing on you lately? I'm here to help you work through this.`;
+            }
+            
+            // Stress support
+            if (lowerMessage.includes('stressed') || lowerMessage.includes('stress') || lowerMessage.includes('overwhelmed') || lowerMessage.includes('pressure') || lowerMessage.includes('burnout')) {
+                return `Stress can feel like it's taking over everything in your life. It's important to remember that you don't have to handle everything at once. Here are some strategies:
+
+📋 STRESS MANAGEMENT:
+• Break tasks into smaller, manageable pieces
+• Use the Pomodoro technique: 25 minutes work, 5 minutes break
+• Practice time management and prioritization
+• Learn to say no when you're overwhelmed
+
+🧘 RELAXATION TECHNIQUES:
+• Deep breathing exercises
+• Progressive muscle relaxation
+• Mindfulness meditation
+• Gentle stretching or yoga
+
+💙 SELF-CARE ESSENTIALS:
+• Stay hydrated and eat regular meals
+• Get adequate sleep (7-9 hours)
+• Take regular breaks throughout the day
+• Engage in activities you enjoy
+
+📚 RESOURCES:
+• Book a stress management counseling session
+• Join our stress relief workshops
+• Access our wellness library for more techniques
+
+What's causing you the most stress right now? Let's work through it together.`;
+            }
+            
+            // Academic stress
+            if (lowerMessage.includes('exam') || lowerMessage.includes('study') || lowerMessage.includes('grades') || lowerMessage.includes('academic') || lowerMessage.includes('assignment')) {
+                return `Academic pressure can be intense, especially when you're juggling multiple responsibilities. Remember that your worth isn't determined by your grades. Here are some strategies:
+
+📚 STUDY TECHNIQUES:
+• Use the Pomodoro technique for focused study sessions
+• Create a realistic study schedule with breaks
+• Practice active recall and spaced repetition
+• Form study groups with classmates
+
+🎯 ACADEMIC SUPPORT:
+• Don't compare yourself to others - focus on your own progress
+• Take advantage of our academic counseling services
+• Use our study groups and peer support features
+• Consider tutoring or academic workshops
+
+💙 WELLNESS TIPS:
+• Maintain a healthy study-life balance
+• Take regular breaks and get enough sleep
+• Stay organized with planners and to-do lists
+• Practice stress-reduction techniques
+
+📞 RESOURCES:
+• Book an academic counseling session
+• Join our study support groups
+• Access our academic success resources
+
+What specific academic challenges are you facing? I'm here to help you work through them.`;
+            }
+            
+            // Sleep issues
+            if (lowerMessage.includes('sleep') || lowerMessage.includes('insomnia') || lowerMessage.includes('tired') || lowerMessage.includes('exhausted') || lowerMessage.includes('nightmare')) {
+                return `Sleep problems can really affect your mental health and daily functioning. Here are some tips for better sleep:
+
+😴 SLEEP HYGIENE:
+• Establish a consistent bedtime routine
+• Avoid screens 1 hour before bed
+• Keep your room cool, dark, and quiet
+• Avoid caffeine and heavy meals before bedtime
+
+🧘 RELAXATION TECHNIQUES:
+• Deep breathing exercises before bed
+• Gentle stretching or yoga
+• Meditation or mindfulness practices
+• Reading a book (not on a screen)
+
+💙 SLEEP RESOURCES:
+• Access our sleep wellness resources on the platform
+• Book a counseling session to discuss sleep issues
+• Join our sleep hygiene workshops
+• Consider our relaxation and meditation groups
+
+If sleep issues persist, it might be worth talking to a healthcare provider or booking a counseling session.`;
+            }
+            
+            // Relationship issues
+            if (lowerMessage.includes('relationship') || lowerMessage.includes('friend') || lowerMessage.includes('family') || lowerMessage.includes('lonely') || lowerMessage.includes('isolated')) {
+                return `Relationships can be complex and sometimes challenging. It's normal to feel lonely or have difficulties with friends and family. Remember that:
+
+💙 HEALTHY RELATIONSHIPS:
+• Involve communication, respect, and boundaries
+• You deserve to be treated with kindness and understanding
+• It's okay to set boundaries and prioritize your well-being
+• Quality matters more than quantity in friendships
+
+🤝 BUILDING CONNECTIONS:
+• Join our peer support groups to connect with others
+• Participate in campus activities and clubs
+• Consider our social skills workshops
+• Practice active listening and empathy
+
+📞 RELATIONSHIP SUPPORT:
+• Our relationship counselors can help you navigate challenges
+• Book a counseling session to discuss relationship issues
+• Join our communication skills workshops
+• Access our relationship resources
+
+What's going on in your relationships? I'm here to listen and support you.`;
+            }
+            
+            // General support and encouragement
+            return `Thank you for sharing what's on your mind. It takes courage to reach out for support, and I'm proud of you for taking this step. I'm here to listen and help you work through whatever you're experiencing.
+
+💙 REMEMBER:
+• Your feelings are valid and important
+• You're not alone in this journey
+• It's okay to not be okay sometimes
+• Small steps forward are still progress
+• Our platform offers various resources to support you
+
+🛠️ AVAILABLE RESOURCES:
+• Book counseling sessions through our platform
+• Join peer support groups
+• Access our wellness library
+• Participate in workshops and activities
+• Connect with campus mental health services
+
+What would you like to explore or discuss further? I'm here to help guide you through this.`;
+        }
+
+        // Navigation functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const isMobile = window.innerWidth <= 768;
+            
+            sidebar.classList.toggle('expanded');
+            
+            if (isMobile) {
+                overlay.classList.toggle('active');
+                // Prevent body scroll when sidebar is open on mobile
+                document.body.style.overflow = sidebar.classList.contains('expanded') ? 'hidden' : '';
+            }
+        }
+
+        // Close sidebar when clicking outside on mobile
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('expanded');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (window.innerWidth > 768) {
+                // Desktop: remove mobile-specific classes and styles
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        function navigateToPage(page) {
+            switch(page) {
+                case 'home':
+                    window.location.href = '/mindcare-home/';
+                    break;
+                case 'sessions':
+                    showNotification('Redirecting to Book Session...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/book-session/';
+                    }, 1000);
+                    break;
+                case 'assessment':
+                    showNotification('Redirecting to Self Assessment...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/self-assessment/';
+                    }, 1000);
+                    break;
+                case 'mood':
+                    showNotification('Redirecting to Mood Tracker...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/mood-tracker/';
+                    }, 1000);
+                    break;
+                case 'resources':
+                    showNotification('Redirecting to Resources...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/resources/';
+                    }, 1000);
+                    break;
+                case 'support':
+                    showNotification('Redirecting to Peer Support...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/peer-support/';
+                    }, 1000);
+                    break;
+                case 'analytics':
+                    showNotification('Redirecting to Analytics Dashboard...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1000);
+                    break;
+                default:
+                    showNotification(`${page.charAt(0).toUpperCase() + page.slice(1)} feature coming soon!`, 'info');
+            }
+        }
+
+        function showCrisisContact() {
+            if (confirm('Are you in immediate danger? If yes, please call 911 or your local emergency number immediately.')) {
+                showNotification('Crisis Helpline: 1800-XXX-XXXX\nAvailable 24/7 for immediate support', 'emergency');
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'emergency' ? '#ff6b6b' : '#667eea'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 14px;
+                max-width: 300px;
+                white-space: pre-line;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        // Auto-resize chat input
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+
+        // Helper function to get CSRF cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Welcome message on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                showNotification('Welcome to AI Support! I\'m here to listen and help you through whatever you\'re experiencing.', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Assessment - MindCare Mental Health Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 64px;
+            background: linear-gradient(180deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .sidebar.expanded {
+            width: 280px;
+            padding: 20px;
+            align-items: flex-start;
+        }
+
+        .sidebar-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.3;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0 8px;
+            width: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.expanded .sidebar-title {
+            opacity: 1;
+            visibility: visible;
+            text-align: left;
+            width: auto;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Sidebar Hamburger Menu */
+        .sidebar-hamburger {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            margin: 0 auto 24px auto;
+            transition: transform 0.3s ease;
+            padding: 4px;
+            border-radius: 4px;
+            position: relative;
+            z-index: 110;
+        }
+
+        .sidebar.expanded .sidebar-hamburger {
+            margin: 0 0 20px 0;
+            align-self: flex-start;
+        }
+
+        .sidebar-hamburger span {
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-hamburger:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            justify-content: center;
+            min-height: 48px;
+            position: relative;
+            width: 100%;
+            margin: 0 8px;
+        }
+
+        .sidebar.expanded .nav-link {
+            justify-content: flex-start;
+            padding: 12px 16px;
+            margin: 0;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .sidebar.expanded .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .sidebar.expanded .nav-link:hover {
+            transform: translateX(5px);
+        }
+        .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .sidebar.expanded .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 0;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .sidebar.expanded .nav-icon {
+            margin-right: 12px;
+        }
+
+        .nav-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            visibility: visible;
+            width: auto;
+        }
+
+        /* Logout Section Styles */
+        .logout-section {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logout-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 12px 0;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 48px;
+                    margin: 0 8px;
+        }
+
+        .sidebar.expanded .logout-btn {
+            justify-content: flex-start;
+            padding: 12px 16px;
+            margin: 0;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logout-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .logout-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .sidebar.expanded .logout-icon {
+            margin-right: 10px;
+        }
+
+        .logout-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+
+        .sidebar.expanded .logout-text {
+            opacity: 1;
+            visibility: visible;
+            width: auto;
+        }
+
+        .logout-btn:hover .logout-icon {
+            transform: translateX(2px);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 50%, #f9e79f 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 30px 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .section-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Important Information */
+        .info-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #7A4A8A;
+            margin-bottom: 12px;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #9B6BA8;
+            line-height: 1.6;
+        }
+
+        /* Assessment Cards */
+        .assessments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .assessment-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .assessment-card.coming-soon {
+            opacity: 0.7;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+            color: #7A4A8A;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #7A4A8A;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #9B6BA8;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .card-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #9B6BA8;
+        }
+
+        .detail-item i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        .card-button {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #FFB347 0%, #FF8C42 100%);
+            border: none;
+            border-radius: 12px;
+            color: #7A4A8A;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 140, 66, 0.3);
+        }
+
+        .card-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 140, 66, 0.4);
+        }
+
+        .card-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Assessment Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #7A4A8A;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 16px;
+            color: #9B6BA8;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            border-color: #7A4A8A;
+        }
+
+        .option.selected {
+            background: rgba(123, 74, 138, 0.1);
+            border-color: #7A4A8A;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .option label {
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            flex: 1;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-right: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #7A4A8A 0%, #9B6BA8 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #9B6BA8;
+            min-width: 60px;
+        }
+
+        .modal-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7A4A8A 0%, #9B6BA8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(123, 74, 138, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results Modal */
+        .results-container {
+            text-align: center;
+        }
+
+        .results-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #7A4A8A;
+            margin-bottom: 16px;
+        }
+
+        .results-interpretation {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .results-recommendations {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .recommendations-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #7A4A8A;
+            margin-bottom: 12px;
+        }
+
+        .recommendations-list {
+            text-align: left;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .recommendations-list li {
+            margin-bottom: 8px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                align-items: flex-start;
+            }
+
+            .sidebar.expanded {
+                left: 0;
+            }
+
+            /* Mobile overlay */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+
+            .sidebar.expanded ~ .sidebar-overlay,
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            /* Mobile hamburger in header */
+            .mobile-hamburger {
+                display: flex;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                flex-direction: column;
+                justify-content: space-around;
+                padding: 4px;
+                border-radius: 4px;
+                z-index: 1001;
+                margin-right: 15px;
+            }
+
+            .mobile-hamburger span {
+                width: 100%;
+                height: 2px;
+                background-color: white;
+                border-radius: 1px;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-hamburger:hover {
+                background-color: rgba(255,255,255,0.1);
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+
+            .assessments-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .progress-bar {
+                margin-right: 0;
+                margin-bottom: 16px;
+            }
+
+            .sidebar-title, .nav-text, .logout-text {
+                opacity: 1;
+                visibility: visible;
+                width: auto;
+            }
+
+            .nav-icon {
+                margin-right: 12px;
+            }
+        }
+
+        /* Desktop: Show hamburger in sidebar, hide mobile hamburger */
+        @media (min-width: 769px) {
+            .mobile-hamburger {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logout Button */
+        .logout-button {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+        }
+
+        .sidebar.expanded .logout-button {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-text {
+            opacity: 0;
+            visibility: hidden;
+            width: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            margin-left: 12px;
+            font-weight: 500;
+        }
+
+        .sidebar.expanded .logout-text {
+            opacity: 1;
+            visibility: visible;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Hamburger Menu in Sidebar -->
+        <div class="sidebar-hamburger" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <h1 class="sidebar-title">Self Assessment</h1>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="home">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUwxMiAyTDIxIDlWMTlIMTNWMTNIMTFWMTlIM1Y5WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Home" class="nav-icon">
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="chatbot">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCAxMEgxNlYxMkg4VjEwWk04IDE0SDE2VjE2SDhWMTQiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="AI Chatbot" class="nav-icon">
+                    <span class="nav-text">AI Chatbot</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="sessions">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5IDNINUMzLjg5NSA0IDMgNC44OTUgMyA2VjE4QzMgMTkuMTA1IDMuODk1IDIwIDUgMjBIMTlDMjAuMTA1IDIwIDIxIDE5LjEwNSAyMSAxOFY2QzIxIDQuODk1IDIwLjEwNSA0IDE5IDRaTTE5IDE4SDVWNkgxOVYxOFpNMTcgOEg3VjEwSDE3VjhaTTE3IDEySDdWMTBIMTdWMTJaTTE3IDE2SDdWMTBIMTdWMTYiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Book Sessions" class="nav-icon">
+                    <span class="nav-text">Book Sessions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="resources">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkM0IDQuODk1IDQuODk1IDQgNiA0SDE4QzE5LjEwNSA0IDIwIDQuODk1IDIwIDZWMThDMjAgMTkuMTA1IDE5LjEwNSAyMCAxOCAyMEg2QzQuODk1IDIwIDQgMTkuMTA1IDQgMThWNlpNNiA2VjE4SDE4VjZINlpNOCA4SDE2VjEwSDhWOFpNOCAxMkgxNlYxNEg4VjEyWiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Resources" class="nav-icon">
+                    <span class="nav-text">Resources</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="assessment">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJIMTVWMTBIOVYxMlpNOSAxNkgxNVYxNEg5VjE2Wk0xOSA0SDE0VjJIMTJWNEg1QzMuODk1IDQgMyA0Ljg5NSAzIDZWMThDMyAxOS4xMDUgMy44OTUgMjAgNSAyMEgxOUMyMC4xMDUgMjAgMjEgMTkuMTA1IDIxIDE4VjZDMjEgNC44OTUgMjAuMTA1IDQgMTkgNFpNMTkgMThINVY2SDE5VjE4Wk0xNyA4SDdWMTBIMTdWOFpNMTcgMTJIN1YxMEgxN1YxMlpNMTcgMTZIN1YxMEgxN1YxNiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Self-Assessment" class="nav-icon">
+                    <span class="nav-text">Self-Assessment</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="mood">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNMTIgNkM4LjY5MSA2IDYgOC42OTEgNiAxMlM4LjY5MSAxOCAxMiAxOFMxOCAxNS4zMDkgMTggMTJTMTUuMzA5IDYgMTIgNlpNMTIgMTZDOS43OTEgMTYgOCAxNC4yMDkgOCAxMlM5Ljc5MSA4IDEyIDhTMTYgOS43OTEgMTYgMTJTMTQuMjA5IDE2IDEyIDE2WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Mood Tracker" class="nav-icon">
+                    <span class="nav-text">Mood Tracker</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="support">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCA5QzguNTUyIDkgOSA4LjU1MiA5IDhDOC41NTIgOCA4IDguNTUyIDggOVM4LjU1MiAxMCA5IDEwUzEwIDkuNDQ4IDEwIDlTOS40NDggOCA5IDhaTTE1IDlDMTUuNTUyIDkgMTYgOC41NTIgMTYgOEMxNiA3LjQ0OCAxNS41NTIgNyAxNSA3UzE0IDcuNDQ4IDE0IDhTMTQuNDQ4IDkgMTUgOVpNMTIgMTVDMTMuNjYgMTUgMTUuMTMgMTQuMTMgMTUuNzMgMTIuNzNDMTUuODggMTIuNDcgMTUuNzMgMTIuMTMgMTUuNDcgMTEuOThDMTUuMjEgMTEuODMgMTQuODcgMTEuOTggMTQuNzIgMTIuMjRDMTQuMzMgMTMuMjYgMTMuMjYgMTQgMTIgMTRTOS42NyAxMy4yNiA5LjI4IDEyLjI0QzkuMTMgMTEuOTggOC43OSAxMS44MyA4LjUzIDExLjk4QzguMjcgMTIuMTMgOC4xMiAxMi40NyA4LjI3IDEyLjczQzguODcgMTQuMTMgMTAuMzQgMTUgMTIgMTVaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Peer Support" class="nav-icon">
+                    <span class="nav-text">Peer Support</span>
+                </a>
+            </li>
+            <li class="nav-item admin-only" id="analyticsMenuItem" style="display: none;">
+                <a href="#" class="nav-link" data-page="analytics">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogICAgPCEtLSBDaGFydCBiYXJzIHdpdGggZGF0YSBwb2ludHMgLS0+DQogICAgPCEtLSBCYXIgMSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjMiIHk9IjE2IiB3aWR0aD0iMyIgaGVpZ2h0PSI1IiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgMiAobWVkaXVtKSAtLT4NCiAgICA8cmVjdCB4PSI3IiB5PSIxMiIgd2lkdGg9IjMiIGhlaWdodD0iOSIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDMgKHRhbGwpIC0tPg0KICAgIDxyZWN0IHg9IjExIiB5PSI4IiB3aWR0aD0iMyIgaGVpZ2h0PSIxMyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDQgKG1lZGl1bS10YWxsKSAtLT4NCiAgICA8cmVjdCB4PSIxNSIgeT0iMTAiIHdpZHRoPSIzIiBoZWlnaHQ9IjExIiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgNSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjE5IiB5PSIxNCIgd2lkdGg9IjMiIGhlaWdodD0iNyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIA0KICAgIDwhLS0gRGF0YSB0cmVuZCBsaW5lIGNvbm5lY3RpbmcgdGhlIGJhcnMgLS0+DQogICAgPHBhdGggZD0iTTQuNSAxOC41IEw4LjUgMTQuNSBMMTIuNSAxMC41IEwxNi41IDEyLjUgTDIwLjUgMTYuNSIgDQogICAgICAgICAgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIA0KICAgICAgICAgIHN0cm9rZS13aWR0aD0iMS41IiANCiAgICAgICAgICBzdHJva2UtbGluZWNhcD0icm91bmQiIA0KICAgICAgICAgIHN0cm9rZS1saW5lam9pbj0icm91bmQiIA0KICAgICAgICAgIGZpbGw9Im5vbmUiLz4NCiAgICANCiAgICA8IS0tIERhdGEgcG9pbnRzIG9uIHRoZSB0cmVuZCBsaW5lIC0tPg0KICAgIDxjaXJjbGUgY3g9IjQuNSIgY3k9IjE4LjUiIHI9IjEuNSIgZmlsbD0iY3VycmVudENvbG9yIi8+DQogICAgPGNpcmNsZSBjeD0iOC41IiBjeT0iMTQuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxMi41IiBjeT0iMTAuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNi41IiBjeT0iMTIuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIyMC41IiBjeT0iMTYuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCjwvc3ZnPg0K" alt="Analytics" class="nav-icon">
+                    <span class="nav-text">Analytics</span>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Logout Button -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <!-- Mobile hamburger (visible only on mobile) -->
+                <div class="mobile-hamburger" onclick="toggleSidebar()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <h1 class="page-title">Self-Assessment</h1>
+            </div>
+            <p class="page-subtitle">Take standardized mental health screening tools</p>
+            <h2 class="section-title">Mental Health Assessment Tools</h2>
+            <p class="section-description">Standardized screening tools to help identify mental health concerns and guide appropriate support.</p>
+        </header>
+
+        <!-- Important Information -->
+        <div class="info-box">
+            <h3 class="info-title">Important Information</h3>
+            <p class="info-text">These assessments are screening tools and not diagnostic instruments. Results should be discussed with a qualified mental health professional. If you're experiencing thoughts of self-harm, please seek immediate help by contacting emergency services or the crisis helpline.</p>
+        </div>
+
+        <!-- Assessment Cards -->
+        <div class="assessments-grid">
+            <!-- PHQ-9 Depression Screening -->
+            <div class="assessment-card">
+                <div class="card-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="card-title">PHQ-9 Depression Screening</h3>
+                <p class="card-description">Patient Health Questionnaire-9 for depression symptoms assessment.</p>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions: 9</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Estimated time: 5 minutes</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Confidentiality: Completely Anonymous</span>
+                    </div>
+                </div>
+                <button class="card-button" onclick="startAssessment('phq9')">Start Assessment</button>
+            </div>
+
+            <!-- GAD-7 Anxiety Assessment -->
+            <div class="assessment-card">
+                <div class="card-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="card-title">GAD-7 Anxiety Assessment</h3>
+                <p class="card-description">Generalized Anxiety Disorder 7-item scale for anxiety symptoms.</p>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions: 7</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Estimated time: 4 minutes</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Confidentiality: Completely Anonymous</span>
+                    </div>
+                </div>
+                <button class="card-button" onclick="startAssessment('gad7')">Start Assessment</button>
+            </div>
+
+            <!-- Sleep Quality Assessment (Coming Soon) -->
+            <div class="assessment-card coming-soon">
+                <div class="card-icon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <h3 class="card-title">Sleep Quality Assessment</h3>
+                <p class="card-description">Evaluate your sleep patterns and identify potential sleep disorders.</p>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions: 10</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Estimated time: 6 minutes</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Confidentiality: Completely Anonymous</span>
+                    </div>
+                </div>
+                <button class="card-button" disabled>Coming Soon</button>
+            </div>
+
+            <!-- Social Anxiety Scale (Coming Soon) -->
+            <div class="assessment-card coming-soon">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="card-title">Social Anxiety Scale</h3>
+                <p class="card-description">Assess social anxiety levels and comfort in social situations.</p>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions: 12</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Estimated time: 8 minutes</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Confidentiality: Completely Anonymous</span>
+                    </div>
+                </div>
+                <button class="card-button" disabled>Coming Soon</button>
+            </div>
+
+            <!-- Academic Stress Inventory (Coming Soon) -->
+            <div class="assessment-card coming-soon">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="card-title">Academic Stress Inventory</h3>
+                <p class="card-description">Measure academic-specific stress levels and coping strategies.</p>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions: 15</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Estimated time: 10 minutes</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Confidentiality: Completely Anonymous</span>
+                    </div>
+                </div>
+                <button class="card-button" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Assessment Modal -->
+    <div class="modal" id="assessmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Assessment</h2>
+                <p class="modal-subtitle" id="modalSubtitle">Please answer all questions honestly</p>
+            </div>
+            
+            <div class="question-container" id="questionContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+            
+            <div class="modal-footer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">1 / 9</span>
+                <button class="modal-button btn-secondary" id="prevButton" onclick="previousQuestion()" style="display: none;">Previous</button>
+                <button class="modal-button btn-primary" id="nextButton" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <div class="results-container">
+                <h2 class="modal-title">Assessment Results</h2>
+                <div class="results-score" id="resultsScore">0</div>
+                <div class="results-interpretation" id="resultsInterpretation">
+                    Your assessment results will appear here.
+                </div>
+                <div class="results-recommendations" id="resultsRecommendations">
+                    <div class="recommendations-title">Recommendations</div>
+                    <ul class="recommendations-list" id="recommendationsList">
+                        <!-- Recommendations will be inserted here -->
+                    </ul>
+                </div>
+                <button class="modal-button btn-primary" onclick="closeResults()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        // Assessment data
+        const assessments = {
+            phq9: {
+                title: "PHQ-9 Depression Screening",
+                subtitle: "Over the last 2 weeks, how often have you been bothered by any of the following problems?",
+                questions: [
+                    "Little interest or pleasure in doing things",
+                    "Feeling down, depressed, or hopeless",
+                    "Trouble falling or staying asleep, or sleeping too much",
+                    "Feeling tired or having little energy",
+                    "Poor appetite or overeating",
+                    "Feeling bad about yourself - or that you are a failure or have let yourself or your family down",
+                    "Trouble concentrating on things, such as reading the newspaper or watching television",
+                    "Moving or speaking so slowly that other people could have noticed, or the opposite - being so fidgety or restless that you have been moving around a lot more than usual",
+                    "Thoughts that you would be better off dead, or of hurting yourself"
+                ],
+                options: [
+                    "Not at all",
+                    "Several days",
+                    "More than half the days",
+                    "Nearly every day"
+                ],
+                scores: [0, 1, 2, 3],
+                interpretations: {
+                    "0-4": "Minimal depression",
+                    "5-9": "Mild depression",
+                    "10-14": "Moderate depression",
+                    "15-19": "Moderately severe depression",
+                    "20-27": "Severe depression"
+                },
+                recommendations: {
+                    "0-4": [
+                        "Continue maintaining your current mental health practices",
+                        "Consider regular self-care activities",
+                        "Stay connected with friends and family"
+                    ],
+                    "5-9": [
+                        "Consider talking to a mental health professional",
+                        "Practice stress management techniques",
+                        "Maintain regular sleep and exercise routines"
+                    ],
+                    "10-14": [
+                        "Strongly recommend consulting with a mental health professional",
+                        "Consider our counseling services",
+                        "Practice mindfulness and relaxation techniques"
+                    ],
+                    "15-19": [
+                        "Please seek professional help immediately",
+                        "Contact our campus counseling services",
+                        "Consider reaching out to a trusted friend or family member"
+                    ],
+                    "20-27": [
+                        "Please seek immediate professional help",
+                        "Contact emergency services if you have thoughts of self-harm",
+                        "Reach out to our crisis support team"
+                    ]
+                }
+            },
+            gad7: {
+                title: "GAD-7 Anxiety Assessment",
+                subtitle: "Over the last 2 weeks, how often have you been bothered by the following problems?",
+                questions: [
+                    "Feeling nervous, anxious, or on edge",
+                    "Not being able to stop or control worrying",
+                    "Worrying too much about different things",
+                    "Trouble relaxing",
+                    "Being so restless that it's hard to sit still",
+                    "Becoming easily annoyed or irritable",
+                    "Feeling afraid as if something awful might happen"
+                ],
+                options: [
+                    "Not at all",
+                    "Several days",
+                    "More than half the days",
+                    "Nearly every day"
+                ],
+                scores: [0, 1, 2, 3],
+                interpretations: {
+                    "0-4": "Minimal anxiety",
+                    "5-9": "Mild anxiety",
+                    "10-14": "Moderate anxiety",
+                    "15-21": "Severe anxiety"
+                },
+                recommendations: {
+                    "0-4": [
+                        "Continue maintaining your current mental health practices",
+                        "Consider regular relaxation techniques",
+                        "Stay engaged in activities you enjoy"
+                    ],
+                    "5-9": [
+                        "Consider talking to a mental health professional",
+                        "Practice breathing exercises and mindfulness",
+                        "Maintain regular sleep and exercise routines"
+                    ],
+                    "10-14": [
+                        "Strongly recommend consulting with a mental health professional",
+                        "Consider our anxiety support groups",
+                        "Practice grounding techniques and stress management"
+                    ],
+                    "15-21": [
+                        "Please seek professional help immediately",
+                        "Contact our campus counseling services",
+                        "Consider our anxiety management programs"
+                    ]
+                }
+            }
+        };
+
+        // Current assessment state
+        let currentAssessment = null;
+        let currentQuestion = 0;
+        let answers = [];
+        let totalScore = 0;
+
+        // Navigation functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const isMobile = window.innerWidth <= 768;
+            
+            sidebar.classList.toggle('expanded');
+            
+            if (isMobile) {
+                overlay.classList.toggle('active');
+                // Prevent body scroll when sidebar is open on mobile
+                document.body.style.overflow = sidebar.classList.contains('expanded') ? 'hidden' : '';
+            }
+        }
+
+        // Close sidebar when clicking outside on mobile
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('expanded');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (window.innerWidth > 768) {
+                // Desktop: remove mobile-specific classes and styles
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Navigation function
+        function navigateToPage(page) {
+            // Add visual feedback
+            const currentLink = document.querySelector(`[data-page="${page}"]`);
+            if (currentLink) {
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                // Add active class to current link
+                currentLink.classList.add('active');
+            }
+            
+            switch(page) {
+                case 'home':
+                    showNotification('Redirecting to Home...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/mindcare-home/';
+                    }, 1000);
+                    break;
+                case 'chatbot':
+                    showNotification('Redirecting to AI Support...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/ai-support/';
+                    }, 1000);
+                    break;
+                case 'sessions':
+                    showNotification('Redirecting to Book Session...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/book-session/';
+                    }, 1000);
+                    break;
+                case 'assessment':
+                    showNotification('You are already on the Self-Assessment page!', 'info');
+                    break;
+                case 'mood':
+                    showNotification('Redirecting to Mood Tracker...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/mood-tracker/';
+                    }, 1000);
+                    break;
+                case 'resources':
+                    showNotification('Redirecting to Resources...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/resources/';
+                    }, 1000);
+                    break;
+                case 'support':
+                    showNotification('Redirecting to Peer Support...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/peer-support/';
+                    }, 1000);
+                    break;
+                case 'analytics':
+                    showNotification('Redirecting to Analytics Dashboard...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1000);
+                    break;
+                default:
+                    showNotification(`${page.charAt(0).toUpperCase() + page.slice(1)} feature coming soon!`, 'info');
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'emergency' ? '#ff6b6b' : '#667eea'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 14px;
+                max-width: 300px;
+                white-space: pre-line;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Start assessment
+        function startAssessment(assessmentType) {
+            currentAssessment = assessments[assessmentType];
+            currentQuestion = 0;
+            answers = [];
+            totalScore = 0;
+            
+            document.getElementById('modalTitle').textContent = currentAssessment.title;
+            document.getElementById('modalSubtitle').textContent = currentAssessment.subtitle;
+            
+            showQuestion();
+            document.getElementById('assessmentModal').classList.add('show');
+        }
+
+        // Show current question
+        function showQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = currentAssessment.questions[currentQuestion];
+            
+            container.innerHTML = `
+                <div class="question">${currentQuestion + 1}. ${question}</div>
+                <div class="options">
+                    ${currentAssessment.options.map((option, index) => `
+                        <div class="option" onclick="selectOption(${index})">
+                            <input type="radio" name="answer" value="${index}" id="option${index}">
+                            <label for="option${index}">${option}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Restore previous answer if exists
+            if (answers[currentQuestion] !== undefined) {
+                const option = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
+                if (option) {
+                    option.checked = true;
+                    option.parentElement.classList.add('selected');
+                }
+            }
+            
+            updateProgress();
+            updateButtons();
+        }
+
+        // Select option
+        function selectOption(index) {
+            // Remove previous selection
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selection to clicked option
+            const selectedOption = document.querySelector(`input[value="${index}"]`).parentElement;
+            selectedOption.classList.add('selected');
+            
+            // Store answer
+            answers[currentQuestion] = index;
+            
+            updateButtons();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / currentAssessment.questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${currentQuestion + 1} / ${currentAssessment.questions.length}`;
+        }
+
+        // Update navigation buttons
+        function updateButtons() {
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            
+            // Show/hide previous button
+            prevButton.style.display = currentQuestion > 0 ? 'block' : 'none';
+            
+            // Update next button text and state
+            if (currentQuestion === currentAssessment.questions.length - 1) {
+                nextButton.textContent = 'Finish';
+                nextButton.disabled = answers[currentQuestion] === undefined;
+            } else {
+                nextButton.textContent = 'Next';
+                nextButton.disabled = answers[currentQuestion] === undefined;
+            }
+        }
+
+        // Navigate to next question
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                alert('Please select an answer before continuing.');
+                return;
+            }
+            
+            if (currentQuestion === currentAssessment.questions.length - 1) {
+                // Finish assessment
+                finishAssessment();
+            } else {
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+
+        // Navigate to previous question
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        // Finish assessment and show results
+        function finishAssessment() {
+            // Calculate total score
+            totalScore = answers.reduce((sum, answer) => {
+                return sum + currentAssessment.scores[answer];
+            }, 0);
+            
+            // Close assessment modal
+            document.getElementById('assessmentModal').classList.remove('show');
+            
+            // Show results
+            showResults();
+        }
+
+        // Show results
+        function showResults() {
+            // Determine interpretation
+            let interpretation = '';
+            let recommendations = [];
+            
+            for (const [range, text] of Object.entries(currentAssessment.interpretations)) {
+                const [min, max] = range.split('-').map(Number);
+                if (totalScore >= min && totalScore <= max) {
+                    interpretation = text;
+                    recommendations = currentAssessment.recommendations[range];
+                    break;
+                }
+            }
+            
+            // Update results modal
+            document.getElementById('resultsScore').textContent = totalScore;
+            document.getElementById('resultsInterpretation').textContent = 
+                `Based on your responses, you scored ${totalScore} points, which indicates ${interpretation.toLowerCase()}.`;
+            
+            // Update recommendations
+            const recommendationsList = document.getElementById('recommendationsList');
+            recommendationsList.innerHTML = recommendations.map(rec => `<li>${rec}</li>`).join('');
+            
+            // Show results modal
+            document.getElementById('resultsModal').classList.add('show');
+        }
+
+        // Close results modal
+        function closeResults() {
+            document.getElementById('resultsModal').classList.remove('show');
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const assessmentModal = document.getElementById('assessmentModal');
+            const resultsModal = document.getElementById('resultsModal');
+            
+            if (event.target === assessmentModal) {
+                assessmentModal.classList.remove('show');
+            }
+            
+            if (event.target === resultsModal) {
+                resultsModal.classList.remove('show');
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.getElementById('assessmentModal').classList.remove('show');
+                document.getElementById('resultsModal').classList.remove('show');
+            }
+        });
+
+        // Initialize page
+        // Check user role and show/hide admin features
+        function checkUserRole() {
+            try {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    
+                    if (user.role === 'admin' && analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'block';
+                    } else if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                } else {
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+                const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                if (analyticsMenuItem) {
+                    analyticsMenuItem.style.display = 'none';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check user role and show/hide admin features
+            checkUserRole();
+            
+            // Add navigation event listeners
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+            
+            console.log('Self-Assessment page loaded');
+        });
+    </script>
+</body>
+</html>

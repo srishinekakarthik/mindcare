@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - {{ user.username }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #3b82f6 50%, #06b6d4 75%, #0891b2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-details {
+            text-align: right;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .user-role {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255, 107, 107, 0.8);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .action-description {
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .welcome-card {
+                padding: 30px 20px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">EduPortal</div>
+        <div class="user-info">
+            <div class="user-details">
+                <div class="user-name">{{ user.username }}</div>
+                <div class="user-role">{{ profile.role|title }} at {{ institution.name }}</div>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1 class="welcome-title">Welcome back, {{ user.username }}!</h1>
+            <p class="welcome-subtitle">You're logged in as a {{ profile.role }} at {{ institution.name }}</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Assignments Due</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Average Grade</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24</div>
+                <div class="stat-label">Messages</div>
+            </div>
+        </div>
+
+        <div class="actions-grid">
+            {% if profile.role == 'student' %}
+            <div class="action-card" onclick="navigateTo('courses')">
+                <h3 class="action-title">My Courses</h3>
+                <p class="action-description">View and manage your enrolled courses, assignments, and grades.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('assignments')">
+                <h3 class="action-title">Assignments</h3>
+                <p class="action-description">Check upcoming assignments, submit work, and track your progress.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('grades')">
+                <h3 class="action-title">Grades & Progress</h3>
+                <p class="action-description">View your academic performance and track your learning journey.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('messages')">
+                <h3 class="action-title">Messages</h3>
+                <p class="action-description">Communicate with instructors and fellow students.</p>
+            </div>
+            {% else %}
+            <div class="action-card" onclick="navigateTo('manage-courses')">
+                <h3 class="action-title">Manage Courses</h3>
+                <p class="action-description">Create, edit, and manage courses for your institution.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('students')">
+                <h3 class="action-title">Student Management</h3>
+                <p class="action-description">View and manage student enrollments and profiles.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('assignments')">
+                <h3 class="action-title">Assignment Management</h3>
+                <p class="action-description">Create assignments, grade submissions, and track progress.</p>
+            </div>
+            <div class="action-card" onclick="navigateTo('analytics')">
+                <h3 class="action-title">Analytics & Reports</h3>
+                <p class="action-description">View institutional analytics and generate reports.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            // Placeholder for navigation
+            alert(`Navigating to ${page}...`);
+        }
+
+        async function handleLogout() {
+            try {
+                const response = await fetch('/api/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear localStorage
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('selectedInstitution');
+                    localStorage.removeItem('selectedRole');
+                    
+                    // Redirect to login
+                    window.location.href = '/login/';
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('An error occurred during logout.');
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

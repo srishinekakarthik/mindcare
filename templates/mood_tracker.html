@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker - MindCare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            min-height: 100vh;
+            display: flex;
+            transition: background 0.5s ease;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 64px;
+            background: linear-gradient(135deg, #f4d03f 0%, #f39c12 50%, #e67e22 100%);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transition: width 0.3s ease;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .sidebar.expanded {
+            width: 280px;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .sidebar-hamburger {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            margin: 0 auto 24px auto;
+            transition: transform 0.3s ease;
+            padding: 4px;
+            border-radius: 4px;
+            position: relative;
+            z-index: 110;
+        }
+
+        .sidebar.expanded .sidebar-hamburger {
+            margin: 0 0 20px 0;
+            align-self: flex-start;
+        }
+
+        .sidebar-hamburger span {
+            width: 100%;
+            height: 2px;
+            background-color: white;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-hamburger:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .sidebar-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.3;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0 8px;
+            width: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.expanded .sidebar-title {
+            opacity: 1;
+            visibility: visible;
+            text-align: left;
+            width: auto;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-menu {
+            list-style: none;
+            width: 100%;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+            width: 100%;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateX(4px);
+        }
+        .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .sidebar.expanded .nav-item.active .nav-link {
+            background-color: rgba(255,255,255,0.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 0;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.expanded .nav-icon {
+            margin-right: 12px;
+        }
+
+        .nav-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .sidebar.expanded .nav-text {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .logout-section {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logout-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 12px 0;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar.expanded .logout-btn {
+            justify-content: flex-start;
+            padding: 12px 16px;
+            margin: 0;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logout-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .logout-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0;
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.expanded .logout-icon {
+            margin-right: 12px;
+        }
+
+        .logout-btn:hover .logout-icon {
+            transform: translateX(2px);
+        }
+
+        .logout-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar.expanded .logout-text {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+        }
+
+        /* Mobile Hamburger */
+        .mobile-hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .mobile-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #333;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        /* Mood Tracker Styles */
+        .mood-tracker-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.5s ease;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .mood-visual {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .ring {
+            position: absolute;
+            border: 3px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .ring1 {
+            width: 80px;
+            height: 80px;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        .ring2 {
+            width: 120px;
+            height: 120px;
+            animation: pulse 4s infinite ease-in-out 0.5s;
+        }
+
+        .ring3 {
+            width: 160px;
+            height: 160px;
+            animation: pulse 4s infinite ease-in-out 1s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .mood-label {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+            transition: color 0.5s ease;
+        }
+
+        .mood-slider-container {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .mood-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #ad60cf, #c791e1, #d1a3e6, #fef3c7, #fde68a, #fcd34d, #f59e0b);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .mood-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid #fcd34d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .mood-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .mood-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid #fcd34d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #fde68a, #fcd34d);
+            color: #333;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(252, 211, 77, 0.3);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(252, 211, 77, 0.4);
+        }
+
+        .next-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Step Management */
+        .mood-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .mood-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Reason Selection Styles */
+        .reason-options {
+            margin-bottom: 30px;
+        }
+
+        .reason-category {
+            margin-bottom: 25px;
+        }
+
+        .reason-category h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .reason-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reason-tag {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(253, 230, 138, 0.4);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .reason-tag:hover {
+            background: rgba(253, 230, 138, 0.3);
+            border-color: rgba(252, 211, 77, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .reason-tag.selected {
+            background: linear-gradient(135deg, #fde68a, #fcd34d);
+            border-color: #f59e0b;
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(252, 211, 77, 0.3);
+        }
+
+        .custom-reason {
+            margin-bottom: 30px;
+        }
+
+        .custom-reason label {
+            display: block;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .custom-reason textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(253, 230, 138, 0.4);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #333;
+            background: rgba(255,255,255,0.9);
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-reason textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.1);
+        }
+
+        .step-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            border: 2px solid rgba(253, 230, 138, 0.4);
+            padding: 16px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(253, 230, 138, 0.3);
+            border-color: rgba(252, 211, 77, 0.6);
+            transform: translateY(-2px);
+        }
+
+         /* Mood State Colors */
+         .mood-1 { background: linear-gradient(135deg, #ae5ac1 0%, #9f47b3 50%, #8a3e9b 100%); }
+         .mood-2 { background: linear-gradient(135deg, #c085d9 0%, #b066cc 50%, #c085d9 100%); }
+         .mood-3 { background: linear-gradient(135deg, #d1a3e6 0%, #c085d9 50%, #d1a3e6 100%); }
+         .mood-4 { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fef3c7 100%); }
+         .mood-5 { background: linear-gradient(135deg, #fde68a 0%, #fcd34d 50%, #fde68a 100%); }
+         .mood-6 { background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 50%, #fcd34d 100%); }
+         .mood-7 { background: linear-gradient(135deg, #f59e0b 0%, #db923e 50%, #f59e0b 100%); }
+
+         .mood-1 .ring { border-color: rgba(156, 104, 168, 0.8); }
+         .mood-2 .ring { border-color: rgba(192, 133, 217, 0.8); }
+         .mood-3 .ring { border-color: rgba(209, 163, 230, 0.8); }
+         .mood-4 .ring { border-color: rgba(254, 243, 199, 0.8); }
+         .mood-5 .ring { border-color: rgba(253, 230, 138, 0.8); }
+         .mood-6 .ring { border-color: rgba(252, 211, 77, 0.8); }
+         .mood-7 .ring { border-color: rgba(232, 170, 64, 0.8); }
+
+         .mood-1 .next-btn { background: linear-gradient(135deg, #8f549c, #93599e); }
+         .mood-2 .next-btn { background: linear-gradient(135deg, #b066cc, #9f4bb5); }
+         .mood-3 .next-btn { background: linear-gradient(135deg, #c085d9, #b066cc); }
+         .mood-4 .next-btn { background: linear-gradient(135deg, #fde68a, #fcd34d); }
+         .mood-5 .next-btn { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+         .mood-6 .next-btn { background: linear-gradient(135deg, #f59e0b, #eb9c41); }
+         .mood-7 .next-btn { background: linear-gradient(135deg, #dc9039, #ec914c); }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                width: 280px;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.expanded {
+                left: 0;
+            }
+
+            .mobile-hamburger {
+                display: block;
+            }
+
+            .main-content {
+                padding: 80px 20px 20px;
+            }
+
+            .mood-tracker-container {
+                padding: 30px 20px;
+                margin: 0 10px;
+            }
+
+            .mood-visual {
+                width: 150px;
+                height: 150px;
+            }
+
+            .ring1 { width: 60px; height: 60px; }
+            .ring2 { width: 90px; height: 90px; }
+            .ring3 { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Hamburger -->
+    <div class="mobile-hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-hamburger" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <h1 class="sidebar-title">Mood Tracker</h1>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="home">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUwxMiAyTDIxIDlWMTlIMTNWMTNIMTFWMTlIM1Y5WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Home" class="nav-icon">
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="chatbot">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCAxMEgxNlYxMkg4VjEwWk04IDE0SDE2VjE2SDhWMTQiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="AI Support" class="nav-icon">
+                    <span class="nav-text">AI Support</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="sessions">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE5IDNINUMzLjg5NSA0IDMgNC44OTUgMyA2VjE4QzMgMTkuMTA1IDMuODk1IDIwIDUgMjBIMTlDMjAuMTA1IDIwIDIxIDE5LjEwNSAyMSAxOFY2QzIxIDQuODk1IDIwLjEwNSA0IDE5IDRaTTE5IDE4SDVWNkgxOVYxOFpNMTcgOEg3VjEwSDE3VjhaTTE3IDEySDdWMTBIMTdWMTJaTTE3IDE2SDdWMTBIMTdWMTYiIGZpbGw9ImN1cnJlbnRDb2xvciIvPgo8L3N2Zz4K" alt="Book Session" class="nav-icon">
+                    <span class="nav-text">Book Session</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="assessment">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJIMTVWMTBIOVYxMlpNOSAxNkgxNVYxNEg5VjE2Wk0xOSA0SDE0VjJIMTJWNEg1QzMuODk1IDQgMyA0Ljg5NSAzIDZWMThDMyAxOS4xMDUgMy44OTUgMjAgNSAyMEgxOUMyMC4xMDUgMjAgMjEgMTkuMTA1IDIxIDE4VjZDMjEgNC44OTUgMjAuMTA1IDQgMTkgNFpNMTkgMThINVY2SDE5VjE4Wk0xNyA4SDdWMTBIMTdWOFpNMTcgMTJIN1YxMEgxN1YxMlpNMTcgMTZIN1YxMEgxN1YxNiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Self Assessment" class="nav-icon">
+                    <span class="nav-text">Self Assessment</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="mood">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNMTIgNkM4LjY5MSA2IDYgOC42OTEgNiAxMlM4LjY5MSAxOCAxMiAxOFMxOCAxNS4zMDkgMTggMTJTMTUuMzA5IDYgMTIgNlpNMTIgMTZDOS43OTEgMTYgOCAxNC4yMDkgOCAxMlM5Ljc5MSA4IDEyIDhTMTYgOS43OTEgMTYgMTJTMTQuMjA5IDE2IDEyIDE2WiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Mood Tracker" class="nav-icon">
+                    <span class="nav-text">Mood Tracker</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="resources">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkM0IDQuODk1IDQuODk1IDQgNiA0SDE4QzE5LjEwNSA0IDIwIDQuODk1IDIwIDZWMThDMjAgMTkuMTA1IDE5LjEwNSAyMCAxOCAyMEg2QzQuODk1IDIwIDQgMTkuMTA1IDQgMThWNlpNNiA2VjE4SDE4VjZINlpNOCA4SDE2VjEwSDhWOFpNOCAxMkgxNlYxNEg4VjEyWiIgZmlsbD0iY3VycmVudENvbG9yIi8+Cjwvc3ZnPgo=" alt="Resources" class="nav-icon">
+                    <span class="nav-text">Resources</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="support">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJTNi40NzcgMjIgMTIgMjJTMjIgMTcuNTIzIDIyIDEyUzE3LjUyMyAyIDEyIDJaTTEyIDIwQzcuNTg5IDIwIDQgMTYuNDExIDQgMTJTNy41ODkgNCAxMiA0UzIwIDcuNTg5IDIwIDEyUzE2LjQxMSAyMCAxMiAyMFpNOCA5QzguNTUyIDkgOSA4LjU1MiA5IDhDOC41NTIgOCA4IDguNTUyIDggOVM4LjU1MiAxMCA5IDEwUzEwIDkuNDQ4IDEwIDlTOS40NDggOCA5IDhaTTE1IDlDMTUuNTUyIDkgMTYgOC41NTIgMTYgOEMxNiA3LjQ0OCAxNS41NTIgNyAxNSA3UzE0IDcuNDQ4IDE0IDhTMTQuNDQ4IDkgMTUgOVpNMTIgMTVDMTMuNjYgMTUgMTUuMTMgMTQuMTMgMTUuNzMgMTIuNzNDMTUuODggMTIuNDcgMTUuNzMgMTIuMTMgMTUuNDcgMTEuOThDMTUuMjEgMTEuODMgMTQuODcgMTEuOTggMTQuNzIgMTIuMjRDMTQuMzMgMTMuMjYgMTMuMjYgMTQgMTIgMTRTOS42NyAxMy4yNiA5LjI4IDEyLjI0QzkuMTMgMTEuOTggOC43OSAxMS44MyA4LjUzIDExLjk4QzguMjcgMTIuMTMgOC4xMiAxMi40NyA4LjI3IDEyLjczQzguODcgMTQuMTMgMTAuMzQgMTUgMTIgMTVaIiBmaWxsPSJjdXJyZW50Q29sb3IiLz4KPC9zdmc+Cg==" alt="Peer Support" class="nav-icon">
+                    <span class="nav-text">Peer Support</span>
+                </a>
+            </li>
+            <li class="nav-item admin-only" id="analyticsMenuItem" style="display: none;">
+                <a href="#" class="nav-link" data-page="analytics">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogICAgPCEtLSBDaGFydCBiYXJzIHdpdGggZGF0YSBwb2ludHMgLS0+DQogICAgPCEtLSBCYXIgMSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjMiIHk9IjE2IiB3aWR0aD0iMyIgaGVpZ2h0PSI1IiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgMiAobWVkaXVtKSAtLT4NCiAgICA8cmVjdCB4PSI3IiB5PSIxMiIgd2lkdGg9IjMiIGhlaWdodD0iOSIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDMgKHRhbGwpIC0tPg0KICAgIDxyZWN0IHg9IjExIiB5PSI4IiB3aWR0aD0iMyIgaGVpZ2h0PSIxMyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIDwhLS0gQmFyIDQgKG1lZGl1bS10YWxsKSAtLT4NCiAgICA8cmVjdCB4PSIxNSIgeT0iMTAiIHdpZHRoPSIzIiBoZWlnaHQ9IjExIiBmaWxsPSJjdXJyZW50Q29sb3IiIHJ4PSIxIi8+DQogICAgPCEtLSBCYXIgNSAoc2hvcnQpIC0tPg0KICAgIDxyZWN0IHg9IjE5IiB5PSIxNCIgd2lkdGg9IjMiIGhlaWdodD0iNyIgZmlsbD0iY3VycmVudENvbG9yIiByeD0iMSIvPg0KICAgIA0KICAgIDwhLS0gRGF0YSB0cmVuZCBsaW5lIGNvbm5lY3RpbmcgdGhlIGJhcnMgLS0+DQogICAgPHBhdGggZD0iTTQuNSAxOC41IEw4LjUgMTQuNSBMMTIuNSAxMC41IEwxNi41IDEyLjUgTDIwLjUgMTYuNSIgDQogICAgICAgICAgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIA0KICAgICAgICAgIHN0cm9rZS13aWR0aD0iMS41IiANCiAgICAgICAgICBzdHJva2UtbGluZWNhcD0icm91bmQiIA0KICAgICAgICAgIHN0cm9rZS1saW5lam9pbj0icm91bmQiIA0KICAgICAgICAgIGZpbGw9Im5vbmUiLz4NCiAgICANCiAgICA8IS0tIERhdGEgcG9pbnRzIG9uIHRoZSB0cmVuZCBsaW5lIC0tPg0KICAgIDxjaXJjbGUgY3g9IjQuNSIgY3k9IjE4LjUiIHI9IjEuNSIgZmlsbD0iY3VycmVudENvbG9yIi8+DQogICAgPGNpcmNsZSBjeD0iOC41IiBjeT0iMTQuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxMi41IiBjeT0iMTAuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIxNi41IiBjeT0iMTIuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCiAgICA8Y2lyY2xlIGN4PSIyMC41IiBjeT0iMTYuNSIgcj0iMS41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz4NCjwvc3ZnPg0K" alt="Analytics" class="nav-icon">
+                    <span class="nav-text">Analytics</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="mood-tracker-container">
+            <!-- Step 1: Mood Selection -->
+            <div id="moodStep" class="mood-step active">
+                <h1 class="page-title">Mood Tracker</h1>
+                <p class="page-subtitle">How are you feeling today?</p>
+                
+                <div class="mood-visual" id="moodVisual">
+                    <div class="ring ring1"></div>
+                    <div class="ring ring2"></div>
+                    <div class="ring ring3"></div>
+                </div>
+                
+                <div class="mood-label" id="moodLabel">Neutral</div>
+                
+                <div class="mood-slider-container">
+                    <div class="slider-labels">
+                        <span>Very Unpleasant</span>
+                        <span>Very Pleasant</span>
+                    </div>
+                    <input type="range" id="moodSlider" class="mood-slider" min="1" max="7" step="1" value="4">
+                </div>
+                
+                <button class="next-btn" id="nextBtn" onclick="goToReasonStep()">Next</button>
+            </div>
+
+            <!-- Step 2: Reason Selection -->
+            <div id="reasonStep" class="mood-step">
+                <h1 class="page-title">What's contributing to this mood?</h1>
+                <p class="page-subtitle">Help us understand what's influencing how you feel</p>
+                
+                <div class="reason-options">
+                    <div class="reason-category">
+                        <h3>Work & Studies</h3>
+                        <div class="reason-tags">
+                            <button class="reason-tag" data-reason="work-stress">Work Stress</button>
+                            <button class="reason-tag" data-reason="academic-pressure">Academic Pressure</button>
+                            <button class="reason-tag" data-reason="deadlines">Deadlines</button>
+                            <button class="reason-tag" data-reason="work-success">Work Success</button>
+                            <button class="reason-tag" data-reason="study-progress">Study Progress</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reason-category">
+                        <h3>Relationships</h3>
+                        <div class="reason-tags">
+                            <button class="reason-tag" data-reason="family">Family</button>
+                            <button class="reason-tag" data-reason="friends">Friends</button>
+                            <button class="reason-tag" data-reason="romantic">Romantic</button>
+                            <button class="reason-tag" data-reason="social-isolation">Social Isolation</button>
+                            <button class="reason-tag" data-reason="conflict">Conflict</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reason-category">
+                        <h3>Health & Wellbeing</h3>
+                        <div class="reason-tags">
+                            <button class="reason-tag" data-reason="sleep">Sleep</button>
+                            <button class="reason-tag" data-reason="exercise">Exercise</button>
+                            <button class="reason-tag" data-reason="diet">Diet</button>
+                            <button class="reason-tag" data-reason="illness">Illness</button>
+                            <button class="reason-tag" data-reason="medication">Medication</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reason-category">
+                        <h3>Environment & Activities</h3>
+                        <div class="reason-tags">
+                            <button class="reason-tag" data-reason="weather">Weather</button>
+                            <button class="reason-tag" data-reason="hobbies">Hobbies</button>
+                            <button class="reason-tag" data-reason="travel">Travel</button>
+                            <button class="reason-tag" data-reason="news">News</button>
+                            <button class="reason-tag" data-reason="achievement">Achievement</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="custom-reason">
+                    <label for="customReason">Or describe your own reason:</label>
+                    <textarea id="customReason" placeholder="Tell us what's on your mind..." rows="3"></textarea>
+                </div>
+                
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="goToMoodStep()">Back</button>
+                    <button class="next-btn" id="saveBtn" onclick="saveMoodWithReason()">Save Mood</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mood states
+        const moods = [
+            { label: "Very Unpleasant", class: "mood-1" },
+            { label: "Unpleasant", class: "mood-2" },
+            { label: "Slightly Unpleasant", class: "mood-3" },
+            { label: "Neutral", class: "mood-4" },
+            { label: "Slightly Pleasant", class: "mood-5" },
+            { label: "Pleasant", class: "mood-6" },
+            { label: "Very Pleasant", class: "mood-7" }
+        ];
+
+        // DOM elements
+        const slider = document.getElementById('moodSlider');
+        const moodLabel = document.getElementById('moodLabel');
+        const moodVisual = document.getElementById('moodVisual');
+        const body = document.body;
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Initialize
+        updateMood(4);
+
+        // Slider event listener
+        slider.addEventListener('input', function() {
+            const value = parseInt(slider.value);
+            updateMood(value);
+        });
+
+        function updateMood(value) {
+            const mood = moods[value - 1];
+            
+            // Update label
+            moodLabel.textContent = mood.label;
+            
+            // Update visual and background
+            moodVisual.className = 'mood-visual ' + mood.class;
+            body.className = mood.class;
+        }
+
+        // Global variables to store mood data
+        let currentMood = null;
+        let selectedReasons = [];
+
+        function goToReasonStep() {
+            const moodValue = parseInt(slider.value);
+            currentMood = {
+                value: moodValue,
+                label: moods[moodValue - 1].label,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Hide mood step and show reason step
+            document.getElementById('moodStep').classList.remove('active');
+            document.getElementById('reasonStep').classList.add('active');
+        }
+
+        function goToMoodStep() {
+            // Hide reason step and show mood step
+            document.getElementById('reasonStep').classList.remove('active');
+            document.getElementById('moodStep').classList.add('active');
+        }
+
+        async function saveMoodWithReason() {
+            // Collect selected reasons
+            selectedReasons = [];
+            const selectedTags = document.querySelectorAll('.reason-tag.selected');
+            selectedTags.forEach(tag => {
+                selectedReasons.push(tag.getAttribute('data-reason'));
+            });
+
+            // Get custom reason
+            const customReason = document.getElementById('customReason').value.trim();
+
+            // Get user data from localStorage
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
+            // Prepare mood data
+            const moodData = {
+                mood: currentMood,
+                reasons: selectedReasons,
+                customReason: customReason,
+                timestamp: new Date().toISOString(),
+                user_data: userData
+            };
+
+            try {
+                // Send to Django backend
+                const response = await fetch('/api/save-mood/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(moodData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Also store in localStorage as backup
+                    const existingMoods = JSON.parse(localStorage.getItem('moodHistory') || '[]');
+                    existingMoods.push(moodData);
+                    localStorage.setItem('moodHistory', JSON.stringify(existingMoods));
+
+                    // Show success message
+                    showNotification(`Mood saved: ${currentMood.label}`, 'success');
+                    
+                    setTimeout(() => {
+                        showNotification('Your mood and reasons have been recorded successfully!', 'info');
+                        
+                        // Reset form and go back to mood step
+                        resetForm();
+                        goToMoodStep();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Failed to save mood');
+                }
+            } catch (error) {
+                console.error('Error saving mood:', error);
+                
+                // Fallback: store in localStorage only
+                const existingMoods = JSON.parse(localStorage.getItem('moodHistory') || '[]');
+                existingMoods.push(moodData);
+                localStorage.setItem('moodHistory', JSON.stringify(existingMoods));
+                
+                showNotification('Mood saved locally (offline mode)', 'info');
+                
+                setTimeout(() => {
+                    showNotification('Your mood and reasons have been recorded!', 'info');
+                    
+                    // Reset form and go back to mood step
+                    resetForm();
+                    goToMoodStep();
+                }, 1000);
+            }
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function resetForm() {
+            // Reset slider to neutral
+            slider.value = 4;
+            updateMood(4);
+            
+            // Clear selected reasons
+            document.querySelectorAll('.reason-tag.selected').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            
+            // Clear custom reason
+            document.getElementById('customReason').value = '';
+            
+            // Reset global variables
+            currentMood = null;
+            selectedReasons = [];
+        }
+
+        // Add event listeners for reason tags
+        document.addEventListener('DOMContentLoaded', function() {
+            const reasonTags = document.querySelectorAll('.reason-tag');
+            reasonTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        });
+
+        // Sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const isExpanded = sidebar.classList.contains('expanded');
+            
+            if (isExpanded) {
+                sidebar.classList.remove('expanded');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            } else {
+                sidebar.classList.add('expanded');
+                if (window.innerWidth <= 768) {
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            sidebar.classList.remove('expanded');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Navigation functionality
+        function navigateToPage(page) {
+            switch(page) {
+                case 'home':
+                    showNotification('Redirecting to Home...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/mindcare-home/';
+                    }, 1000);
+                    break;
+                case 'chatbot':
+                    showNotification('Redirecting to AI Support...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/ai-support/';
+                    }, 1000);
+                    break;
+                case 'sessions':
+                    showNotification('Redirecting to Book Session...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/book-session/';
+                    }, 1000);
+                    break;
+                case 'assessment':
+                    showNotification('Redirecting to Self Assessment...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/self-assessment/';
+                    }, 1000);
+                    break;
+                case 'mood':
+                    showNotification('You are already on the Mood Tracker page!', 'info');
+                    break;
+                case 'resources':
+                    showNotification('Redirecting to Resources...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/resources/';
+                    }, 1000);
+                    break;
+                case 'support':
+                    showNotification('Redirecting to Peer Support...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/peer-support/';
+                    }, 1000);
+                    break;
+                case 'analytics':
+                    showNotification('Redirecting to Analytics Dashboard...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1000);
+                    break;
+                default:
+                    showNotification(`${page.charAt(0).toUpperCase() + page.slice(1)} feature coming soon!`, 'info');
+            }
+        }
+
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-message">${message}</span>
+                </div>
+            `;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                max-width: 300px;
+                font-weight: 500;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add navigation event listeners
+        // Check user role and show/hide admin features
+        function checkUserRole() {
+            try {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    
+                    if (user.role === 'admin' && analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'block';
+                    } else if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                } else {
+                    const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                    if (analyticsMenuItem) {
+                        analyticsMenuItem.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+                const analyticsMenuItem = document.getElementById('analyticsMenuItem');
+                if (analyticsMenuItem) {
+                    analyticsMenuItem.style.display = 'none';
+                }
+            }
+        }
+
+        // Load mood history from database
+        async function loadMoodHistoryFromDatabase() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('user') || '{}');
+                if (!userData.email) {
+                    console.log('No user data found, skipping database load');
+                    return;
+                }
+
+                const response = await fetch(`/api/mood-history/?email=${encodeURIComponent(userData.email)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.mood_history.length > 0) {
+                    console.log(`Loaded ${result.total_entries} mood entries from database`);
+                    
+                    // Store in localStorage for offline access
+                    localStorage.setItem('moodHistory', JSON.stringify(result.mood_history));
+                    
+                    // Update the mood history display
+                    updateMoodHistoryDisplay(result.mood_history);
+                } else {
+                    console.log('No mood history found in database');
+                }
+            } catch (error) {
+                console.error('Error loading mood history from database:', error);
+            }
+        }
+
+        // Update mood history display
+        function updateMoodHistoryDisplay(moodHistory) {
+            const historyContainer = document.getElementById('moodHistory');
+            if (!historyContainer || moodHistory.length === 0) return;
+
+            historyContainer.innerHTML = '';
+            
+            moodHistory.slice(0, 5).forEach(entry => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-mood">
+                        <span class="mood-emoji">${getMoodEmoji(entry.mood_value)}</span>
+                        <span class="mood-label">${entry.mood_label}</span>
+                    </div>
+                    <div class="history-details">
+                        <div class="history-reason">${entry.reason || 'No reason provided'}</div>
+                        <div class="history-date">${new Date(entry.created_at).toLocaleDateString()}</div>
+                    </div>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // Get mood emoji based on mood value
+        function getMoodEmoji(moodValue) {
+            const emojis = {
+                1: '😢', 2: '😔', 3: '😕', 4: '😐', 5: '🙂', 6: '😊', 7: '😄'
+            };
+            return emojis[moodValue] || '😐';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check user role and show/hide admin features
+            checkUserRole();
+            
+            // Load mood history from database
+            loadMoodHistoryFromDatabase();
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('mobileOverlay');
+                sidebar.classList.remove('expanded');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</body>
+</html>

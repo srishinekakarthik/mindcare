@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Counselor Dashboard — MindCare{% endblock %}
+{% block breadcrumb %}Counselor Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-heading">Welcome back{% if counselor.user_profile.user.first_name %}, {{ counselor.user_profile.user.first_name }}{% endif %}</h1>
+    <p class="page-desc">{{ counselor.title|default:"Counselor" }} · Here's what's on your schedule.</p>
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-title">Upcoming Sessions</div>
+        <div class="kpi-value">{{ upcoming_sessions|length }}</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Open Slots (next 14 days)</div>
+        <div class="kpi-value">{{ open_slot_count }}</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Completed Sessions</div>
+        <div class="kpi-value">{{ past_sessions|length }}</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Average Rating</div>
+        <div class="kpi-value">{% if average_rating %}{{ average_rating }} ★{% else %}—{% endif %}</div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <span class="card-title">Upcoming Sessions</span>
+        <a href="{% url 'counselor_availability' %}" class="btn btn-secondary btn-sm">Manage Availability</a>
+    </div>
+    <div class="card-body">
+        {% if upcoming_sessions %}
+            {% for session in upcoming_sessions %}
+            <div class="counselor-row" style="cursor:default;">
+                <div class="counselor-info">
+                    <div class="counselor-name">{{ session.student.get_full_name|default:session.student.username }}</div>
+                    <div class="counselor-role">{{ session.get_session_type_display }} session · {{ session.date }} at {{ session.start_time|time:"g:i A" }}</div>
+                    {% if session.student_notes %}<div class="counselor-specialties">"{{ session.student_notes }}"</div>{% endif %}
+                </div>
+                <form method="post" action="{% url 'complete_session_api' session.id %}" class="complete-session-form" style="margin:0;">
+                    <button type="submit" class="btn btn-ghost btn-sm">Mark Completed</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <p>No upcoming sessions. Add availability to let students book with you.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
+
+document.querySelectorAll('.complete-session-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const resp = await fetch(this.action, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Could not update session.');
+        }
+    });
+});
+</script>
+{% endblock %}

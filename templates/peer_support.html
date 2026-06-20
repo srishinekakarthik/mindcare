@@ -172,7 +172,7 @@
 <div class="page-header" style="display:flex; align-items:center; justify-content:space-between;">
     <div>
         <h1 class="page-heading">Peer Support</h1>
-        <p class="page-desc">A safe, anonymous space to share and support each other.</p>
+        <p class="page-desc">A safe, anonymous-by-default space to share and support each other.</p>
     </div>
     <button class="btn btn-primary" onclick="openNewPost()">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
@@ -182,39 +182,13 @@
 
 <div class="peer-layout">
 
-    <!-- Categories Sidebar -->
+    <!-- Sidebar -->
     <div>
-        <div class="card" style="margin-bottom:16px;">
-            <div class="card-header"><span class="card-title">Categories</span></div>
-            <div class="card-body" style="padding:12px;">
-                <div class="category-list">
-                    <div class="category-item active" onclick="filterPosts('all', this)">
-                        All Posts <span class="category-count" id="count-all">6</span>
-                    </div>
-                    <div class="category-item" onclick="filterPosts('anxiety', this)">
-                        Anxiety <span class="category-count" id="count-anxiety">2</span>
-                    </div>
-                    <div class="category-item" onclick="filterPosts('stress', this)">
-                        Stress <span class="category-count" id="count-stress">2</span>
-                    </div>
-                    <div class="category-item" onclick="filterPosts('relationships', this)">
-                        Relationships <span class="category-count" id="count-relationships">1</span>
-                    </div>
-                    <div class="category-item" onclick="filterPosts('sleep', this)">
-                        Sleep <span class="category-count" id="count-sleep">1</span>
-                    </div>
-                    <div class="category-item" onclick="filterPosts('general', this)">
-                        General <span class="category-count" id="count-general">0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="card">
             <div class="card-body" style="padding:16px;">
                 <div class="alert alert-info" style="font-size:12px; line-height:1.5;">
                     <svg viewBox="0 0 16 16" fill="currentColor"><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>
-                    <span>All posts are anonymous. Be kind and supportive.</span>
+                    <span>Posts are anonymous by default. Be kind and supportive. Flagged content is reviewed by counselors and admins.</span>
                 </div>
             </div>
         </div>
@@ -222,17 +196,51 @@
 
     <!-- Post Feed -->
     <div>
-        <!-- Feed Header -->
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-            <div class="tabs" style="margin-bottom:0; border-bottom:none; gap:4px;">
-                <button class="tab active" onclick="sortFeed('recent', this)">Recent</button>
-                <button class="tab" onclick="sortFeed('popular', this)">Popular</button>
-            </div>
-            <span style="font-size:12px; color:var(--text-muted);" id="postCountLabel">Showing 6 posts</span>
+            <span style="font-size:13px; font-weight:600; color:var(--text-primary);">Recent Posts</span>
+            <span style="font-size:12px; color:var(--text-muted);">Showing {{ posts|length }} post{{ posts|length|pluralize }}</span>
         </div>
 
         <div id="postFeed">
-            <!-- Rendered by JS -->
+            {% for p in posts %}
+            <div class="post-card" data-post-id="{{ p.id }}">
+                <div class="post-header">
+                    <div class="post-avatar">{{ p.display_name|slice:":1" }}</div>
+                    <div class="post-meta">
+                        <div class="post-author">{{ p.display_name }}</div>
+                        <div class="post-time">{{ p.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+                <div class="post-title">{{ p.title }}</div>
+                <div class="post-body">{{ p.body }}</div>
+                <div class="post-footer">
+                    <button class="post-action toggle-comments-btn" data-post-id="{{ p.id }}">
+                        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/></svg>
+                        {{ p.comments.count }} repl{{ p.comments.count|pluralize:"y,ies" }}
+                    </button>
+                </div>
+                <div class="comments-section" id="comments-{{ p.id }}" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-subtle);">
+                    {% for c in p.comments.all %}
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div class="post-avatar" style="width:24px; height:24px; font-size:10px;">{{ c.display_name|slice:":1" }}</div>
+                        <div>
+                            <div style="font-size:12px; font-weight:600; color:var(--text-primary);">{{ c.display_name }}</div>
+                            <div style="font-size:12px; color:var(--text-secondary);">{{ c.body }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <form class="comment-form" data-post-id="{{ p.id }}" style="display:flex; gap:8px; margin-top:8px;">
+                        <input type="text" class="form-input comment-input" placeholder="Write a reply..." style="flex:1;">
+                        <button type="submit" class="btn btn-secondary btn-sm">Reply</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state" style="padding:48px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12z"/></svg>
+                <p>No posts yet. Be the first to share!</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -243,34 +251,25 @@
         <div class="modal-title">Share with the Community</div>
 
         <div class="form-group">
-            <label class="form-label">Category</label>
-            <select class="form-select" id="newPostCategory">
-                <option value="anxiety">Anxiety</option>
-                <option value="stress">Stress</option>
-                <option value="relationships">Relationships</option>
-                <option value="sleep">Sleep</option>
-                <option value="general">General</option>
-            </select>
-        </div>
-
-        <div class="form-group">
             <label class="form-label">Title</label>
             <input type="text" class="form-input" id="newPostTitle" placeholder="Give your post a short title...">
         </div>
 
         <div class="form-group">
             <label class="form-label">Your message</label>
-            <textarea class="form-textarea" id="newPostBody" placeholder="Share what's on your mind. This post will be anonymous." style="min-height:100px;"></textarea>
+            <textarea class="form-textarea" id="newPostBody" placeholder="Share what's on your mind." style="min-height:100px;"></textarea>
         </div>
 
-        <div class="alert alert-success" style="font-size:12px;">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>
-            <span>Your post will be 100% anonymous. No personal information will be shared.</span>
+        <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="newPostAnonymous" checked style="width:auto;">
+            <label class="form-label" for="newPostAnonymous" style="margin:0;">Post anonymously</label>
         </div>
+
+        <div id="newPostError" class="alert alert-danger" style="display:none; font-size:12px;"></div>
 
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeNewPost()">Cancel</button>
-            <button class="btn btn-primary" onclick="submitPost()">Post Anonymously</button>
+            <button class="btn btn-primary" onclick="submitPost()" id="submitPostBtn">Post</button>
         </div>
     </div>
 </div>
@@ -278,108 +277,78 @@
 
 {% block extra_js %}
 <script>
-let posts = [
-    { id: 1, category: 'anxiety', author: 'A', title: 'Feeling overwhelmed before finals', body: 'Every year around exam time I feel like everything is falling apart. Racing thoughts, can\'t sleep. Has anyone found anything that actually helps manage exam anxiety?', time: '2 hours ago', likes: 12, comments: 5, liked: false },
-    { id: 2, category: 'stress', author: 'B', title: 'Struggling to balance coursework and part-time job', body: 'I work 20 hours a week and have 5 courses this semester. I barely have time to eat properly. How do you all manage?', time: '4 hours ago', likes: 8, comments: 3, liked: false },
-    { id: 3, category: 'relationships', author: 'C', title: 'Feeling isolated from my friend group', body: 'Since I started struggling with my mental health, I feel like I\'ve been pulling away from my friends. I don\'t want to burden them but the isolation is making things worse.', time: '1 day ago', likes: 24, comments: 11, liked: false },
-    { id: 4, category: 'sleep', author: 'D', title: 'Insomnia is destroying my grades', body: 'I literally cannot fall asleep before 3 AM no matter what I try. I\'ve tried melatonin, no screens, everything. My 8 AM lectures are becoming impossible.', time: '1 day ago', likes: 15, comments: 7, liked: false },
-    { id: 5, category: 'anxiety', author: 'E', title: 'Social anxiety making presentations impossible', body: 'I have a presentation next week and I\'m already panicking. My hands shake, voice cracks, I go completely blank. Any tips from people who\'ve dealt with this?', time: '2 days ago', likes: 19, comments: 9, liked: false },
-    { id: 6, category: 'stress', author: 'F', title: 'First therapy session — didn\'t know what to expect', body: 'Just had my first counseling session through the university. Honestly wasn\'t sure what to expect but it felt good to talk to someone. Just wanted to share in case anyone is on the fence.', time: '3 days ago', likes: 31, comments: 14, liked: false },
-];
-
-let activeFilter = 'all';
-
-function renderPosts(list) {
-    const feed = document.getElementById('postFeed');
-    document.getElementById('postCountLabel').textContent = `Showing ${list.length} post${list.length !== 1 ? 's' : ''}`;
-
-    if (!list.length) {
-        feed.innerHTML = '<div class="empty-state" style="padding:48px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12z"/></svg><p>No posts in this category yet. Be the first to share!</p></div>';
-        return;
-    }
-
-    feed.innerHTML = list.map(p => `
-        <div class="post-card">
-            <div class="post-header">
-                <div class="post-avatar">${p.author}</div>
-                <div class="post-meta">
-                    <div class="post-author">Anonymous</div>
-                    <div class="post-time">${p.time}</div>
-                </div>
-                <span class="badge badge-default" style="text-transform:capitalize;">${p.category}</span>
-            </div>
-            <div class="post-title">${p.title}</div>
-            <div class="post-body">${p.body}</div>
-            <div class="post-footer">
-                <button class="post-action" onclick="toggleLike(${p.id}, this)" style="color:${p.liked ? 'var(--accent)' : ''};">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/></svg>
-                    <span id="likes-${p.id}">${p.likes}</span>
-                </button>
-                <button class="post-action">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/></svg>
-                    ${p.comments} replies
-                </button>
-                <button class="post-action" style="margin-left:auto;">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>
-                    Share
-                </button>
-            </div>
-        </div>`).join('');
-}
-
-function filterPosts(cat, el) {
-    activeFilter = cat;
-    document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
-    el.classList.add('active');
-    const filtered = cat === 'all' ? posts : posts.filter(p => p.category === cat);
-    renderPosts(filtered);
-}
-
-function sortFeed(method, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    const filtered = activeFilter === 'all' ? [...posts] : posts.filter(p => p.category === activeFilter);
-    if (method === 'popular') filtered.sort((a, b) => b.likes - a.likes);
-    renderPosts(filtered);
-}
-
-function toggleLike(id, btn) {
-    const post = posts.find(p => p.id === id);
-    if (!post) return;
-    post.liked = !post.liked;
-    post.likes += post.liked ? 1 : -1;
-    btn.style.color = post.liked ? 'var(--accent)' : '';
-    document.getElementById('likes-' + id).textContent = post.likes;
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
 }
 
 function openNewPost() { document.getElementById('newPostModal').classList.add('open'); }
 function closeNewPost() { document.getElementById('newPostModal').classList.remove('open'); }
 
-function submitPost() {
+async function submitPost() {
     const title = document.getElementById('newPostTitle').value.trim();
     const body = document.getElementById('newPostBody').value.trim();
-    const category = document.getElementById('newPostCategory').value;
-    if (!title || !body) { alert('Please fill in all fields.'); return; }
+    const isAnonymous = document.getElementById('newPostAnonymous').checked;
+    const errorDiv = document.getElementById('newPostError');
+    errorDiv.style.display = 'none';
 
-    const newPost = {
-        id: posts.length + 1,
-        category,
-        author: '?',
-        title,
-        body,
-        time: 'Just now',
-        likes: 0,
-        comments: 0,
-        liked: false
-    };
-    posts.unshift(newPost);
-    closeNewPost();
-    document.getElementById('newPostTitle').value = '';
-    document.getElementById('newPostBody').value = '';
-    filterPosts(activeFilter, document.querySelector('.category-item.active'));
+    if (!title || !body) {
+        errorDiv.textContent = 'Please fill in both the title and message.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    const btn = document.getElementById('submitPostBtn');
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch("{% url 'create_peer_post_api' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ title, body, is_anonymous: isAnonymous })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            errorDiv.textContent = data.error || 'Could not create post.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+    }
 }
 
-// Initial render
-renderPosts(posts);
+document.querySelectorAll('.toggle-comments-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const section = document.getElementById('comments-' + this.dataset.postId);
+        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    });
+});
+
+document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const postId = this.dataset.postId;
+        const input = this.querySelector('.comment-input');
+        const body = input.value.trim();
+        if (!body) return;
+
+        const resp = await fetch(`/peer-support/${postId}/comment/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ body, is_anonymous: true })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Could not post reply.');
+        }
+    });
+});
 </script>
 {% endblock %}

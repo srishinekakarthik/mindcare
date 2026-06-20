@@ -130,16 +130,8 @@
 {% block content %}
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
     <div>
-        <h1 class="page-heading">Platform Analytics</h1>
-        <p class="page-desc">Overview of platform usage, user engagement, and well-being metrics.</p>
-    </div>
-    <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary btn-sm">Export Report</button>
-        <select class="form-select" style="padding:4px 10px; font-size:12px; height:auto; width:auto; border-radius:var(--radius);">
-            <option>Last 7 days</option>
-            <option selected>Last 30 days</option>
-            <option>Last Quarter</option>
-        </select>
+        <h1 class="page-heading">{% if is_admin %}Platform Analytics{% else %}Institution Analytics{% endif %}</h1>
+        <p class="page-desc">{{ scope_label }} · overview of usage, engagement, and well-being metrics over the last {{ window_days }} days.</p>
     </div>
 </div>
 
@@ -151,32 +143,32 @@
                 <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
                 Active Users
             </div>
-            <div class="kpi-value">2,845</div>
-            <div class="kpi-trend up">↑ 12% vs last period</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-title">
-                <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
-                Avg Session Time
-            </div>
-            <div class="kpi-value">14m 20s</div>
-            <div class="kpi-trend up">↑ 5% vs last period</div>
+            <div class="kpi-value">{{ active_users }}</div>
+            <div class="kpi-trend neutral">Logged in within the window</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-title">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/></svg>
                 Counseling Bookings
             </div>
-            <div class="kpi-value">184</div>
-            <div class="kpi-trend down">↓ 2% vs last period</div>
+            <div class="kpi-value">{{ total_bookings }}</div>
+            <div class="kpi-trend neutral">{{ completed_sessions }} completed · {{ cancelled_sessions }} cancelled</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-title">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
-                Crisis Alerts
+                Elevated-Risk Assessments
             </div>
-            <div class="kpi-value">3</div>
-            <div class="kpi-trend neutral">— No change</div>
+            <div class="kpi-value">{{ crisis_alerts }}</div>
+            <div class="kpi-trend neutral">Moderately severe or severe, this window</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">
+                <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+                Mood Check-ins Logged
+            </div>
+            <div class="kpi-value">{{ engagement_counts|last }}</div>
+            <div class="kpi-trend neutral">Today, so far</div>
         </div>
     </div>
 
@@ -184,7 +176,7 @@
     <div class="charts-grid">
         <div class="chart-card">
             <div class="chart-header">
-                <div class="chart-title">Platform Engagement</div>
+                <div class="chart-title">Platform Engagement (last 7 days)</div>
             </div>
             <div class="chart-area">
                 <canvas id="engagementChart"></canvas>
@@ -193,7 +185,7 @@
 
         <div class="chart-card">
             <div class="chart-header">
-                <div class="chart-title">Avg. Mood Distribution</div>
+                <div class="chart-title">Mood Distribution</div>
             </div>
             <div class="chart-area">
                 <canvas id="moodDistChart"></canvas>
@@ -204,39 +196,23 @@
     <!-- Recent Activity -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title">Recent Platform Activity</span>
-            <button class="btn btn-ghost btn-sm">View All</button>
+            <span class="card-title">Recent Bookings</span>
         </div>
         <div class="card-body">
             <div class="recent-activity">
-                <div class="activity-item">
-                    <div class="activity-icon alert">!</div>
-                    <div class="activity-content">
-                        <div class="activity-text"><strong>Crisis Alert</strong> triggered by user #4829. Security notified.</div>
-                        <div class="activity-time">10 mins ago</div>
-                    </div>
-                </div>
+                {% for s in recent_sessions %}
                 <div class="activity-item">
                     <div class="activity-icon session">✓</div>
                     <div class="activity-content">
-                        <div class="activity-text"><strong>New booking</strong>: Group therapy session reached capacity (15/15).</div>
-                        <div class="activity-time">1 hour ago</div>
+                        <div class="activity-text">
+                            <strong>{{ s.get_session_type_display }} session</strong> booked with {{ s.counselor.user_profile.user.get_full_name|default:s.counselor.user_profile.user.username }} — status: {{ s.get_status_display }}
+                        </div>
+                        <div class="activity-time">{{ s.created_at|timesince }} ago</div>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-icon user">👤</div>
-                    <div class="activity-content">
-                        <div class="activity-text"><strong>Sign up spike</strong>: 45 new users registered from the Engineering faculty.</div>
-                        <div class="activity-time">3 hours ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon user">👤</div>
-                    <div class="activity-content">
-                        <div class="activity-text"><strong>Resource popularity</strong>: "Managing Exam Stress" viewed 200+ times today.</div>
-                        <div class="activity-time">5 hours ago</div>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="empty-state"><p>No bookings yet in this scope.</p></div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -247,16 +223,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const engagementLabels = {{ engagement_labels_json|safe }};
+    const engagementCounts = {{ engagement_counts_json|safe }};
+    const bookingCounts = {{ booking_counts_json|safe }};
+
+    const moodLabels = {{ mood_bucket_labels_json|safe }};
+    const moodValues = {{ mood_bucket_values_json|safe }};
+
     // Engagement Line Chart
     const ctxEng = document.getElementById('engagementChart').getContext('2d');
     new Chart(ctxEng, {
         type: 'line',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: engagementLabels,
             datasets: [
                 {
-                    label: 'Active Users',
-                    data: [1200, 1900, 1500, 2100, 1800, 900, 1100],
+                    label: 'Mood Check-ins',
+                    data: engagementCounts,
                     borderColor: '#3B82F6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 2,
@@ -264,8 +247,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     tension: 0.4
                 },
                 {
-                    label: 'AI Chat Sessions',
-                    data: [800, 1200, 1100, 1600, 1400, 600, 700],
+                    label: 'Bookings',
+                    data: bookingCounts,
                     borderColor: '#10B981',
                     borderWidth: 2,
                     borderDash: [5, 5],
@@ -285,8 +268,9 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             scales: {
                 y: {
+                    beginAtZero: true,
                     grid: { color: 'rgba(42,52,65,0.8)' },
-                    ticks: { color: '#64748B', font: { size: 11 } }
+                    ticks: { color: '#64748B', font: { size: 11 }, precision: 0 }
                 },
                 x: {
                     grid: { display: false },
@@ -301,9 +285,9 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctxMood, {
         type: 'doughnut',
         data: {
-            labels: ['Excellent', 'Good', 'Neutral', 'Low', 'Very Low'],
+            labels: moodLabels,
             datasets: [{
-                data: [15, 30, 25, 20, 10],
+                data: moodValues,
                 backgroundColor: [
                     '#10B981', // success
                     '#3B82F6', // primary

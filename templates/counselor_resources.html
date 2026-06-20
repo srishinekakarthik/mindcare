@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Resources — MindCare{% endblock %}
+{% block breadcrumb %}Manage Resources{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-heading">Manage Resources</h1>
+    <p class="page-desc">Add helpful articles, videos, and tools to the platform library.</p>
+</div>
+
+<div class="kpi-grid">
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+            <span class="card-title">Add New Resource</span>
+        </div>
+        <div class="card-body">
+            <form id="addResourceForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="resTitle">Title</label>
+                        <input type="text" id="resTitle" class="form-input" placeholder="e.g. Grounding Techniques for Anxiety" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="resCategory">Category</label>
+                        <select id="resCategory" class="form-select" required>
+                            <option value="">Select Category</option>
+                            {% for value, label in categories %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resUrl">Link / URL (Optional)</label>
+                    <input type="url" id="resUrl" class="form-input" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resDesc">Description</label>
+                    <textarea id="resDesc" class="form-input" rows="3" placeholder="A short description of this resource..." required></textarea>
+                </div>
+                
+                <div id="addError" class="alert alert-danger" style="display: none; font-size: 13px; margin-bottom: 16px;"></div>
+                <div id="addSuccess" class="alert alert-success" style="display: none; font-size: 13px; margin-bottom: 16px;">Resource added successfully!</div>
+                
+                <button type="submit" class="btn btn-primary" id="addBtn">Add Resource</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header">
+        <span class="card-title">My Published Resources</span>
+    </div>
+    <div class="card-body">
+        <table class="data-table" id="resourcesTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date Added</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if resources %}
+                    {% for res in resources %}
+                    <tr>
+                        <td>
+                            {% if res.url %}
+                                <a href="{{ res.url }}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:500;">{{ res.title }}</a>
+                            {% else %}
+                                {{ res.title }}
+                            {% endif %}
+                        </td>
+                        <td>{{ res.get_category_display }}</td>
+                        <td>{{ res.created_at|date:"M j, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr id="emptyRow">
+                        <td colspan="3" style="text-align:center; color:var(--text-muted); padding: 32px 16px;">You haven't added any resources yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
+
+document.getElementById('addResourceForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('resTitle').value;
+    const category = document.getElementById('resCategory').value;
+    const url = document.getElementById('resUrl').value;
+    const description = document.getElementById('resDesc').value;
+    
+    const btn = document.getElementById('addBtn');
+    const errorDiv = document.getElementById('addError');
+    const successDiv = document.getElementById('addSuccess');
+    
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    try {
+        const resp = await fetch('/api/counselor/resources/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ title, category, url, description })
+        });
+        
+        const data = await resp.json();
+        
+        if (data.success) {
+            successDiv.style.display = 'block';
+            this.reset();
+            
+            const emptyRow = document.getElementById('emptyRow');
+            if (emptyRow) emptyRow.remove();
+            
+            const tbody = document.querySelector('#resourcesTable tbody');
+            const tr = document.createElement('tr');
+            
+            const tdTitle = document.createElement('td');
+            if (url) {
+                tdTitle.innerHTML = `<a href="${url}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:500;">${data.resource.title}</a>`;
+            } else {
+                tdTitle.textContent = data.resource.title;
+            }
+            
+            const tdCat = document.createElement('td');
+            tdCat.textContent = data.resource.category_display;
+            
+            const tdDate = document.createElement('td');
+            const d = new Date(data.resource.created_at);
+            tdDate.textContent = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+            
+            tr.appendChild(tdTitle);
+            tr.appendChild(tdCat);
+            tr.appendChild(tdDate);
+            
+            tbody.insertBefore(tr, tbody.firstChild);
+        } else {
+            errorDiv.textContent = data.error || 'Failed to add resource.';
+            errorDiv.style.display = 'block';
+        }
+    } catch (err) {
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Resource';
+    }
+});
+</script>
+{% endblock %}

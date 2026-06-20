@@ -254,8 +254,31 @@ input[type="date"] {
 {% block content %}
 <div class="page-header">
     <h1 class="page-heading">Book a Session</h1>
-    <p class="page-desc">Schedule a confidential session with our licensed mental health professionals.</p>
+    <p class="page-desc">Schedule a confidential session with our approved counselors.</p>
 </div>
+
+{% if upcoming_bookings %}
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><span class="card-title">Your Upcoming Sessions</span></div>
+    <div class="card-body" id="upcomingBookingsContainer">
+        {% for b in upcoming_bookings %}
+        <div class="counselor-row" style="cursor:default;" data-session-id="{{ b.id }}">
+            <div class="counselor-info">
+                <div class="counselor-name">{{ b.counselor.user_profile.user.get_full_name|default:b.counselor.user_profile.user.username }}</div>
+                <div class="counselor-role">{{ b.get_session_type_display }} · {{ b.date }} at {{ b.start_time|time:"g:i A" }}</div>
+            </div>
+            <button class="btn btn-ghost btn-sm cancel-booking-btn" data-session-id="{{ b.id }}">Cancel</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if not counselors %}
+<div class="alert alert-info" style="margin-bottom:20px;">
+    No approved counselors are available to book right now. Please check back soon, or use the AI Assistant in the meantime.
+</div>
+{% endif %}
 
 <div class="session-layout">
 
@@ -286,14 +309,10 @@ input[type="date"] {
                         <div class="session-type-name">Group Session</div>
                         <div class="session-type-desc">Peer support groups</div>
                     </div>
-                    <div class="session-type-card" onclick="selectType('crisis', this)">
-                        <div class="session-type-icon" style="background:var(--danger-subtle); color:var(--danger);">
-                            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>
-                        </div>
-                        <div class="session-type-name">Crisis Helpline</div>
-                        <div class="session-type-desc">24/7 emergency: 1800-xxx-xxx</div>
-                    </div>
                 </div>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:12px;">
+                    In an emergency, contact your local emergency number or campus security immediately. This page is for scheduling non-urgent sessions.
+                </p>
             </div>
         </div>
 
@@ -305,34 +324,20 @@ input[type="date"] {
                     <span class="card-title">Choose Your Counselor</span>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="counselor-row" onclick="selectCounselor('Dr. Priya Sharma', this)">
-                    <div class="counselor-avatar">PS</div>
+            <div class="card-body" id="counselorList">
+                {% for c in counselors %}
+                <div class="counselor-row" onclick="selectCounselor({{ c.id }}, '{{ c.user_profile.user.get_full_name|default:c.user_profile.user.username|escapejs }}', this)" data-counselor-id="{{ c.id }}">
+                    <div class="counselor-avatar">{{ c.user_profile.user.get_full_name|default:c.user_profile.user.username|slice:":2"|upper }}</div>
                     <div class="counselor-info">
-                        <div class="counselor-name">Dr. Priya Sharma</div>
-                        <div class="counselor-role">Licensed Clinical Psychologist</div>
-                        <div class="counselor-specialties">Anxiety · Depression · Academic Stress</div>
+                        <div class="counselor-name">{{ c.user_profile.user.get_full_name|default:c.user_profile.user.username }}</div>
+                        <div class="counselor-role">{{ c.title|default:"Counselor" }}</div>
+                        <div class="counselor-specialties">{{ c.specialties|default:"General counseling" }}</div>
                     </div>
-                    <div class="counselor-rating">★ 4.9</div>
+                    {% if c.average_rating %}<div class="counselor-rating">★ {{ c.average_rating }}</div>{% endif %}
                 </div>
-                <div class="counselor-row" onclick="selectCounselor('Dr. Rajesh Kumar', this)">
-                    <div class="counselor-avatar">RK</div>
-                    <div class="counselor-info">
-                        <div class="counselor-name">Dr. Rajesh Kumar</div>
-                        <div class="counselor-role">Counselling Psychologist</div>
-                        <div class="counselor-specialties">Career · Social Anxiety · Family Issues</div>
-                    </div>
-                    <div class="counselor-rating">★ 4.8</div>
-                </div>
-                <div class="counselor-row" onclick="selectCounselor('Ms. Anita Reddy', this)">
-                    <div class="counselor-avatar">AR</div>
-                    <div class="counselor-info">
-                        <div class="counselor-name">Ms. Anita Reddy</div>
-                        <div class="counselor-role">Mental Health Counsellor</div>
-                        <div class="counselor-specialties">Trauma · PTSD · Grief Counselling</div>
-                    </div>
-                    <div class="counselor-rating">★ 4.9</div>
-                </div>
+                {% empty %}
+                <div class="empty-state"><p>No counselors available yet.</p></div>
+                {% endfor %}
             </div>
         </div>
 
@@ -345,23 +350,13 @@ input[type="date"] {
                 </div>
             </div>
             <div class="card-body">
-                <div class="form-group" style="margin-bottom:16px;">
-                    <label class="form-label">Preferred Date</label>
-                    <input type="date" class="form-input" id="sessionDate" onchange="updateSummary()" min="">
+                <p id="dateTimeHint" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Select a counselor above to see their open slots.</p>
+                <div class="form-group" style="margin-bottom:16px; display:none;" id="dateFieldGroup">
+                    <label class="form-label">Date</label>
+                    <select class="form-select" id="sessionDateSelect" onchange="renderTimeSlotsForSelectedDate()"></select>
                 </div>
-                <label class="form-label" style="margin-bottom:8px; display:block;">Available Slots</label>
-                <div class="time-slots">
-                    <div class="time-slot" onclick="selectSlot('9:00 AM', this)">9:00 AM</div>
-                    <div class="time-slot" onclick="selectSlot('10:00 AM', this)">10:00 AM</div>
-                    <div class="time-slot unavailable">11:00 AM</div>
-                    <div class="time-slot" onclick="selectSlot('12:00 PM', this)">12:00 PM</div>
-                    <div class="time-slot unavailable">2:00 PM</div>
-                    <div class="time-slot" onclick="selectSlot('3:00 PM', this)">3:00 PM</div>
-                    <div class="time-slot" onclick="selectSlot('4:00 PM', this)">4:00 PM</div>
-                    <div class="time-slot" onclick="selectSlot('5:00 PM', this)">5:00 PM</div>
-                    <div class="time-slot unavailable">6:00 PM</div>
-                </div>
-                <p style="font-size:11px; color:var(--text-muted); margin-top:10px;">Grayed slots are unavailable. All sessions are 50 minutes.</p>
+                <label class="form-label" style="margin-bottom:8px; display:block;" id="slotsLabel"></label>
+                <div class="time-slots" id="timeSlotsContainer"></div>
             </div>
         </div>
 
@@ -404,15 +399,16 @@ input[type="date"] {
             </div>
             <div class="summary-row">
                 <span class="summary-key">Duration</span>
-                <span class="summary-val">50 minutes</span>
+                <span class="summary-val" id="sumDuration">50 minutes</span>
             </div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-primary" style="width:100%;" onclick="confirmBooking()">
+            <div id="bookingError" class="alert alert-danger" style="display:none; font-size:12px; padding:10px; margin-bottom:12px;"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="confirmBooking()" id="confirmBtn">
                 <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/></svg>
                 Confirm Booking
             </button>
-            <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">You will receive a confirmation email after booking.</p>
+            <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Your slot is held as soon as you confirm.</p>
         </div>
     </div>
 </div>
@@ -439,62 +435,159 @@ input[type="date"] {
 
 {% block extra_js %}
 <script>
-let booking = { type: null, counselor: null, date: null, time: null };
+let booking = { type: null, counselorId: null, counselorName: null, slotId: null, date: null, time: null };
+let slotsByDate = {};
 
-// Set min date to today
-document.getElementById('sessionDate').min = new Date().toISOString().split('T')[0];
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
 
 function selectType(type, el) {
     document.querySelectorAll('.session-type-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    booking.type = type.charAt(0).toUpperCase() + type.slice(1);
+    booking.type = type;
     updateSummary();
 }
 
-function selectCounselor(name, el) {
+async function selectCounselor(counselorId, name, el) {
     document.querySelectorAll('.counselor-row').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    booking.counselor = name;
+    booking.counselorId = counselorId;
+    booking.counselorName = name;
+    booking.slotId = null;
+    booking.date = null;
+    booking.time = null;
+    updateSummary();
+
+    document.getElementById('dateTimeHint').textContent = 'Loading available slots...';
+    document.getElementById('timeSlotsContainer').innerHTML = '';
+    document.getElementById('dateFieldGroup').style.display = 'none';
+
+    try {
+        const resp = await fetch(`/book-session/${counselorId}/slots/`);
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'Could not load slots');
+
+        slotsByDate = data.slots_by_date || {};
+        const dates = Object.keys(slotsByDate).sort();
+
+        if (dates.length === 0) {
+            document.getElementById('dateTimeHint').textContent = 'This counselor has no open slots in the next 14 days.';
+            return;
+        }
+
+        document.getElementById('dateTimeHint').textContent = '';
+        const select = document.getElementById('sessionDateSelect');
+        select.innerHTML = dates.map(d => {
+            const label = new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            return `<option value="${d}">${label}</option>`;
+        }).join('');
+        document.getElementById('dateFieldGroup').style.display = '';
+        renderTimeSlotsForSelectedDate();
+    } catch (err) {
+        document.getElementById('dateTimeHint').textContent = 'Could not load this counselor\'s availability. Please try another counselor.';
+    }
+}
+
+function renderTimeSlotsForSelectedDate() {
+    const date = document.getElementById('sessionDateSelect').value;
+    const slots = slotsByDate[date] || [];
+    const container = document.getElementById('timeSlotsContainer');
+    document.getElementById('slotsLabel').textContent = slots.length ? 'Available Slots' : '';
+
+    if (slots.length === 0) {
+        container.innerHTML = '<p style="font-size:12px; color:var(--text-muted);">No open slots on this date.</p>';
+        return;
+    }
+
+    container.innerHTML = slots.map(s =>
+        `<div class="time-slot" data-slot-id="${s.id}" onclick="selectSlot(${s.id}, '${s.time}', '${date}', this)">${s.time}</div>`
+    ).join('');
+    booking.slotId = null;
+    booking.time = null;
     updateSummary();
 }
 
-function selectSlot(time, el) {
+function selectSlot(slotId, time, date, el) {
     document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
     el.classList.add('selected');
+    booking.slotId = slotId;
     booking.time = time;
+    booking.date = date;
     updateSummary();
 }
 
 function updateSummary() {
-    const dateVal = document.getElementById('sessionDate').value;
-    if (dateVal) booking.date = new Date(dateVal + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    const typeLabel = booking.type ? (booking.type.charAt(0).toUpperCase() + booking.type.slice(1)) : null;
+    const dateLabel = booking.date ? new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
-    document.getElementById('sumType').textContent = booking.type || 'Not selected';
-    document.getElementById('sumCounselor').textContent = booking.counselor || 'Not selected';
-    document.getElementById('sumDate').textContent = booking.date || 'Not selected';
+    document.getElementById('sumType').textContent = typeLabel || 'Not selected';
+    document.getElementById('sumCounselor').textContent = booking.counselorName || 'Not selected';
+    document.getElementById('sumDate').textContent = dateLabel || 'Not selected';
     document.getElementById('sumTime').textContent = booking.time || 'Not selected';
 }
 
-function confirmBooking() {
-    if (!booking.type || !booking.counselor || !booking.date || !booking.time) {
-        alert('Please complete all steps before confirming.');
+async function confirmBooking() {
+    const errorDiv = document.getElementById('bookingError');
+    errorDiv.style.display = 'none';
+
+    if (!booking.type || !booking.slotId) {
+        errorDiv.textContent = 'Please select a session type, counselor, and time slot before confirming.';
+        errorDiv.style.display = 'block';
         return;
     }
 
-    // Populate confirmation modal
-    document.getElementById('confCounselor').textContent = booking.counselor;
-    document.getElementById('confDate').textContent = booking.date;
-    document.getElementById('confTime').textContent = booking.time;
-    document.getElementById('confirmMsg').textContent = `Your ${booking.type} session has been booked. You'll receive a confirmation email shortly.`;
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true;
 
-    // Save to localStorage
-    localStorage.setItem('latestBooking', JSON.stringify({ ...booking, status: 'confirmed', bookedAt: new Date().toISOString() }));
+    try {
+        const resp = await fetch("{% url 'create_booking_api' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({
+                slot_id: booking.slotId,
+                session_type: booking.type,
+                notes: document.getElementById('sessionNotes').value
+            })
+        });
+        const data = await resp.json();
 
-    document.getElementById('confirmModal').classList.add('open');
+        if (!data.success) {
+            errorDiv.textContent = data.error || 'Could not complete booking.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            return;
+        }
+
+        document.getElementById('confCounselor').textContent = data.booking.counselor;
+        document.getElementById('confDate').textContent = data.booking.date;
+        document.getElementById('confTime').textContent = data.booking.time;
+        document.getElementById('confirmMsg').textContent = data.message;
+        document.getElementById('confirmModal').classList.add('open');
+    } catch (err) {
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+    }
 }
 
 function closeConfirmModal() {
-    document.getElementById('confirmModal').classList.remove('open');
+    window.location.reload();
 }
+
+document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        if (!confirm('Cancel this session?')) return;
+        const sessionId = this.dataset.sessionId;
+        const resp = await fetch(`/api/cancel-session/${sessionId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await resp.json();
+        if (data.success) window.location.reload();
+        else alert(data.error || 'Could not cancel session.');
+    });
+});
 </script>
 {% endblock %}

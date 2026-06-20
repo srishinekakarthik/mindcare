@@ -125,6 +125,25 @@
     <p class="page-desc">Curated mental health resources, guides, and coping strategies.</p>
 </div>
 
+{% if detail_view %}
+{% with resource=resources.0 %}
+<div class="featured-card">
+    <div class="featured-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>
+    </div>
+    <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span class="badge badge-accent">{{ resource.get_category_display }}</span>
+        </div>
+        <div class="resource-title">{{ resource.title }}</div>
+        <div class="resource-desc" style="white-space:pre-line;">{{ resource.body|default:resource.description }}</div>
+        {% if resource.url %}<a href="{{ resource.url }}" target="_blank" class="btn btn-primary btn-sm">Open Link →</a>{% endif %}
+        <a href="{% url 'resources' %}" class="btn btn-ghost btn-sm">← Back to all resources</a>
+    </div>
+</div>
+{% endwith %}
+{% else %}
+
 <!-- Search & Filter -->
 <div class="resources-header-bar">
     <div class="search-bar">
@@ -132,169 +151,48 @@
         <input type="text" id="resourceSearch" placeholder="Search resources..." oninput="filterResources()">
     </div>
     <div class="tabs" style="margin-bottom:0; border-bottom:none; gap:4px;">
-        <button class="tab active" onclick="filterByCategory('all', this)">All</button>
-        <button class="tab" onclick="filterByCategory('anxiety', this)">Anxiety</button>
-        <button class="tab" onclick="filterByCategory('stress', this)">Stress</button>
-        <button class="tab" onclick="filterByCategory('depression', this)">Depression</button>
-        <button class="tab" onclick="filterByCategory('sleep', this)">Sleep</button>
-        <button class="tab" onclick="filterByCategory('relationships', this)">Relationships</button>
-    </div>
-</div>
-
-<!-- Featured Resource -->
-<div class="featured-card">
-    <div class="featured-icon">
-        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>
-    </div>
-    <div>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <span class="badge badge-accent">Featured</span>
-            <span style="font-size:11px; color:var(--text-muted);">5 min read</span>
-        </div>
-        <div class="resource-title">The 5-4-3-2-1 Grounding Technique for Immediate Anxiety Relief</div>
-        <div class="resource-desc">A scientifically-backed mindfulness exercise that brings you into the present moment by engaging all five senses. Use this anytime you feel overwhelming anxiety or panic.</div>
-        <button class="btn btn-primary btn-sm" onclick="openResource('featured')">Read Now →</button>
+        <a href="{% url 'resources' %}" class="tab {% if not selected_category %}active{% endif %}">All</a>
+        {% for value, label in categories %}
+        <a href="{% url 'resources' %}?category={{ value }}" class="tab {% if selected_category == value %}active{% endif %}">{{ label }}</a>
+        {% endfor %}
     </div>
 </div>
 
 <!-- Resource Grid -->
 <div class="grid-3" id="resourceGrid">
-    <!-- Rendered by JS -->
-</div>
-
-<!-- Resource Modal -->
-<div class="modal-overlay" id="resourceModal">
-    <div class="modal" style="max-width:640px; max-height:80vh; overflow-y:auto;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-            <div class="modal-title" id="modalTitle">Resource Title</div>
-            <button class="btn btn-ghost btn-sm" onclick="closeResourceModal()">✕</button>
+    {% for r in resources %}
+    <a href="{% url 'resource_detail' r.id %}" class="resource-card" style="text-decoration:none; display:block;" data-title="{{ r.title|lower }}" data-desc="{{ r.description|lower }}">
+        <div class="resource-type">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828z"/></svg>
+            <span class="badge badge-accent">{{ r.get_category_display }}</span>
         </div>
-        <div id="modalContent" style="font-size:14px; color:var(--text-secondary); line-height:1.7;"></div>
+        <div class="resource-title">{{ r.title }}</div>
+        <div class="resource-desc">{{ r.description }}</div>
+        <div class="resource-footer">
+            <div class="resource-read-time">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+                {{ r.view_count }} views
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="empty-state" style="padding:48px;grid-column:span 3;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828z"/></svg>
+        <p>No resources found{% if selected_category %} in this category{% endif %}.</p>
     </div>
+    {% endfor %}
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const resources = [
-    {
-        id: 1, category: 'anxiety', type: 'Guide', title: 'Understanding Anxiety: What It Is and How to Manage It',
-        desc: 'A comprehensive guide to understanding the roots of anxiety and evidence-based strategies to manage it effectively.',
-        readTime: '8 min', content: '<p>Anxiety is one of the most common mental health conditions. It\'s characterized by persistent feelings of worry, fear, or unease that are difficult to control.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">Common Symptoms</h4><ul style="padding-left:16px;"><li>Racing heart or palpitations</li><li>Difficulty concentrating</li><li>Muscle tension</li><li>Sleep disturbances</li><li>Excessive worry</li></ul><h4 style="margin:16px 0 8px; color:var(--text-primary);">Practical Strategies</h4><p>1. <strong>Diaphragmatic breathing:</strong> Breathe deeply into your belly for 4 counts, hold for 4, exhale for 6.</p><p>2. <strong>Progressive muscle relaxation:</strong> Systematically tense and release muscle groups.</p><p>3. <strong>Cognitive reframing:</strong> Challenge anxious thoughts with evidence-based alternatives.</p>'
-    },
-    {
-        id: 2, category: 'stress', type: 'Technique', title: 'Time Blocking for Academic Stress Reduction',
-        desc: 'Learn how strategic time management using time-blocking can dramatically reduce academic pressure.',
-        readTime: '6 min', content: '<p>Time blocking is the practice of dividing your day into blocks of time, each dedicated to a specific task or group of tasks.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">How to Time Block</h4><p>1. List all your tasks for the week.</p><p>2. Estimate time needed for each.</p><p>3. Assign them to specific time slots in your calendar.</p><p>4. Include buffer time and breaks.</p><p>5. Protect these blocks like appointments.</p>'
-    },
-    {
-        id: 3, category: 'depression', type: 'Article', title: 'Behavioral Activation: Breaking the Cycle of Low Mood',
-        desc: 'Discover how behavioral activation, a core CBT technique, can help you gradually rebuild motivation and joy.',
-        readTime: '7 min', content: '<p>Behavioral activation is based on the premise that depression leads to withdrawal, which leads to more depression — a vicious cycle.</p><p>The treatment involves gradually reintroducing activities that bring pleasure or a sense of accomplishment, even when you don\'t feel like doing them.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">Getting Started</h4><p>Start small. Choose one activity per day that you used to enjoy, even if you feel no motivation. Do it anyway. Track your mood before and after.</p>'
-    },
-    {
-        id: 4, category: 'sleep', type: 'Guide', title: 'Sleep Hygiene for College Students: A Practical Guide',
-        desc: 'Evidence-based techniques to improve your sleep quality and duration, tailored for the college lifestyle.',
-        readTime: '5 min', content: '<p>Poor sleep significantly impacts academic performance, mood, and physical health. Here are evidence-based strategies:</p><ul style="padding-left:16px; margin:12px 0;"><li><strong>Consistent schedule:</strong> Wake up at the same time every day, even weekends.</li><li><strong>Screen curfew:</strong> No screens 30-60 minutes before bed.</li><li><strong>Cool environment:</strong> 65-68°F (18-20°C) is optimal for sleep.</li><li><strong>Limit caffeine:</strong> No caffeine after 2 PM.</li><li><strong>Wind-down routine:</strong> Light reading, stretching, or journaling.</li></ul>'
-    },
-    {
-        id: 5, category: 'relationships', type: 'Article', title: 'Setting Healthy Boundaries in Friendships and Relationships',
-        desc: 'A guide to understanding what healthy boundaries look like and how to communicate them effectively.',
-        readTime: '6 min', content: '<p>Boundaries are the limits we set on how we allow others to treat us and what we\'re willing to do. They are essential for healthy relationships.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">Types of Boundaries</h4><p><strong>Physical</strong> — personal space and touch preferences.</p><p><strong>Emotional</strong> — how much you share and what emotional labor you take on.</p><p><strong>Time</strong> — how you protect your time and energy.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">How to Set Them</h4><p>Use "I" statements: "I feel overwhelmed when..." and be specific about what you need.</p>'
-    },
-    {
-        id: 6, category: 'anxiety', type: 'Exercise', title: 'Progressive Muscle Relaxation: A Step-by-Step Guide',
-        desc: 'A proven relaxation technique that reduces physical tension and calms the nervous system.',
-        readTime: '10 min', content: '<p>Progressive muscle relaxation (PMR) involves tensing and then releasing muscle groups in sequence. It helps you recognize and reduce physical tension.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">Steps</h4><p>1. Find a comfortable, quiet position.</p><p>2. Starting with your feet, tense the muscles tightly for 5 seconds.</p><p>3. Release the tension and notice the feeling of relaxation for 15-20 seconds.</p><p>4. Move up through your body: feet → calves → thighs → abdomen → hands → arms → shoulders → face.</p><p>Complete the cycle once daily for best results.</p>'
-    },
-    {
-        id: 7, category: 'stress', type: 'Strategy', title: 'The STOP Technique for Mindful Stress Management',
-        desc: 'A quick, four-step mindfulness technique you can use anywhere to interrupt the stress response.',
-        readTime: '3 min', content: '<p>STOP is a brief mindfulness practice:</p><p><strong>S</strong> — Stop what you\'re doing.</p><p><strong>T</strong> — Take a breath (one long, slow, deep breath).</p><p><strong>O</strong> — Observe your thoughts, feelings, and sensations without judgment.</p><p><strong>P</strong> — Proceed with awareness.</p><p>This technique can be done in under a minute and is particularly effective during high-stress moments like before an exam or difficult conversation.</p>'
-    },
-    {
-        id: 8, category: 'depression', type: 'Guide', title: 'When to Seek Professional Help: A Practical Guide',
-        desc: 'Understanding the signs that indicate it\'s time to reach out to a mental health professional.',
-        readTime: '5 min', content: '<p>Seeking help is a sign of strength, not weakness. Consider reaching out to a mental health professional if:</p><ul style="padding-left:16px; margin:12px 0;"><li>Symptoms persist for more than 2 weeks</li><li>Your functioning is significantly impaired</li><li>You\'re having thoughts of self-harm</li><li>Your quality of life is significantly reduced</li><li>Self-help strategies aren\'t working</li></ul><p>MindCare\'s <strong>Book Session</strong> feature can connect you with a campus counselor within days.</p>'
-    },
-    {
-        id: 9, category: 'relationships', type: 'Article', title: 'Navigating Loneliness in University Life',
-        desc: 'Practical strategies for building meaningful connections on campus even when you feel isolated.',
-        readTime: '6 min', content: '<p>Feeling lonely at university is extremely common — studies suggest up to 60% of college students experience loneliness. You are not alone in feeling alone.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">Practical Steps</h4><p>1. Join one club or society related to a genuine interest.</p><p>2. Use MindCare\'s Peer Support community.</p><p>3. Talk to classmates — even small talk builds familiarity over time.</p><p>4. Volunteer — it builds purpose and connection simultaneously.</p>'
-    },
-];
-
-let activeCategory = 'all';
-let searchQuery = '';
-
-function renderResources() {
-    let filtered = resources;
-    if (activeCategory !== 'all') filtered = filtered.filter(r => r.category === activeCategory);
-    if (searchQuery) filtered = filtered.filter(r =>
-        r.title.toLowerCase().includes(searchQuery) ||
-        r.desc.toLowerCase().includes(searchQuery)
-    );
-
-    const grid = document.getElementById('resourceGrid');
-    if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state" style="padding:48px;grid-column:span 3;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828z"/></svg><p>No resources match your search.</p></div>';
-        return;
-    }
-
-    const typeColors = { Guide: 'accent', Technique: 'success', Article: 'warning', Exercise: 'danger', Strategy: 'accent' };
-
-    grid.innerHTML = filtered.map(r => `
-        <div class="resource-card" onclick="openResource(${r.id})">
-            <div class="resource-type">
-                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828z"/></svg>
-                <span class="badge badge-${typeColors[r.type] || 'default'}">${r.type}</span>
-            </div>
-            <div class="resource-title">${r.title}</div>
-            <div class="resource-desc">${r.desc}</div>
-            <div class="resource-footer">
-                <div class="resource-read-time">
-                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
-                    ${r.readTime}
-                </div>
-                <span class="badge badge-default" style="text-transform:capitalize;">${r.category}</span>
-            </div>
-        </div>`).join('');
-}
-
-function filterByCategory(cat, el) {
-    activeCategory = cat;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    renderResources();
-}
-
 function filterResources() {
-    searchQuery = document.getElementById('resourceSearch').value.toLowerCase();
-    renderResources();
+    const query = document.getElementById('resourceSearch').value.toLowerCase();
+    document.querySelectorAll('#resourceGrid [data-title]').forEach(card => {
+        const matches = card.dataset.title.includes(query) || card.dataset.desc.includes(query);
+        card.style.display = matches ? '' : 'none';
+    });
 }
-
-function openResource(id) {
-    let resource;
-    if (id === 'featured') {
-        document.getElementById('modalTitle').textContent = 'The 5-4-3-2-1 Grounding Technique';
-        document.getElementById('modalContent').innerHTML = '<p>The 5-4-3-2-1 technique is one of the most effective grounding exercises for acute anxiety.</p><h4 style="margin:16px 0 8px; color:var(--text-primary);">The Exercise</h4><p><strong>5 things you can SEE</strong> — Look around and name 5 things you can see right now.</p><p><strong>4 things you can FEEL</strong> — Notice 4 physical sensations (clothes on skin, feet on floor).</p><p><strong>3 things you can HEAR</strong> — Listen for 3 sounds in your environment.</p><p><strong>2 things you can SMELL</strong> — Identify 2 smells (or remember 2 favorite smells).</p><p><strong>1 thing you can TASTE</strong> — Notice what you can taste right now.</p><p style="margin-top:12px;">This exercise works by shifting your attention from anxious thoughts to your immediate physical environment, activating the parasympathetic nervous system.</p>';
-    } else {
-        resource = resources.find(r => r.id === id);
-        if (!resource) return;
-        document.getElementById('modalTitle').textContent = resource.title;
-        document.getElementById('modalContent').innerHTML = resource.content;
-    }
-    document.getElementById('resourceModal').classList.add('open');
-}
-
-function closeResourceModal() {
-    document.getElementById('resourceModal').classList.remove('open');
-}
-
-document.getElementById('resourceModal').addEventListener('click', function(e) {
-    if (e.target === this) closeResourceModal();
-});
-
-renderResources();
 </script>
 {% endblock %}

@@ -28,18 +28,23 @@
     <div class="nav-section">
         <span class="nav-label">Platform</span>
         <ul style="list-style:none;">
+            {% if user_role == 'student' %}
             <li class="nav-item">
                 <a href="{% url 'mindcare_home' %}" class="nav-link" data-path="/mindcare-home/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L8.707 1.5zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5z"/></svg>
                     Dashboard
                 </a>
             </li>
-            <li class="nav-item admin-only" id="studentsMenuItem" style="display:none;">
+            {% endif %}
+            {% if user_role == 'admin' %}
+            <li class="nav-item">
                 <a href="{% url 'database_viewer' %}" class="nav-link" data-path="/database/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002A.274.274 0 0 1 15 13H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
                     Students
                 </a>
             </li>
+            {% endif %}
+            {% if user_role == 'student' %}
             <li class="nav-item">
                 <a href="{% url 'mood_tracker' %}" class="nav-link" data-path="/mood-tracker/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/></svg>
@@ -52,6 +57,8 @@
                     Assessments
                 </a>
             </li>
+            {% endif %}
+            {% if user_role == 'student' or user_role == 'staff' %}
             <li class="nav-item">
                 <a href="{% url 'ai_support' %}" class="nav-link" data-path="/ai-support/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5ZM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a1.001 1.001 0 0 1-.965.995 28.926 28.926 0 0 1-3.497.023.5.5 0 0 1-.044 0l-.108.5H9a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-1 0V11h-.5a.5.5 0 0 1-.5-.5l-.108-.5a28.927 28.927 0 0 1-3.497-.023A1.001 1.001 0 0 1 3 9.219V8.062Zm4.542-4.45C6.587 3.767 5.05 4.65 5.05 6v.109c.876-.03 1.801-.045 2.75-.051V6h.4v.058c.95.006 1.875.02 2.75.051V6c0-1.351-1.537-2.233-2.492-1.888a.8.8 0 0 1-.566 0h-.35Z"/></svg>
@@ -64,7 +71,9 @@
                     Resources
                 </a>
             </li>
+            {% endif %}
 
+            {% if user_role == 'student' %}
             <span class="nav-label" style="margin-top:8px;">Community</span>
             <li class="nav-item">
                 <a href="{% url 'peer_support' %}" class="nav-link" data-path="/peer-support/">
@@ -72,29 +81,67 @@
                     Peer Support
                 </a>
             </li>
+            {% endif %}
+            {% if user_role == 'student' or user_role == 'staff' %}
             <li class="nav-item">
                 <a href="{% url 'book_session' %}" class="nav-link" data-path="/book-session/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
                     Book Session
                 </a>
             </li>
+            {% endif %}
 
-            <span class="nav-label admin-only" id="adminLabel" style="display:none; margin-top:8px;">Admin</span>
-            <li class="nav-item admin-only" id="analyticsMenuItem" style="display:none;">
+            {% if user_role == 'counselor' %}
+            <span class="nav-label" style="margin-top:8px;">Counseling</span>
+            <li class="nav-item">
+                <a href="{% url 'counselor_dashboard' %}" class="nav-link" data-path="/counselor/dashboard/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L8.707 1.5zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5z"/></svg>
+                    My Sessions
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'counselor_availability' %}" class="nav-link" data-path="/counselor/availability/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                    My Availability
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'counselor_resources' %}" class="nav-link" data-path="/counselor/resources/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.746c-.917-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.65.71 4.388.84c-1.33.134-2.658.53-3.594.893l-.09.035v9.906l.044-.02c.87-.34 2.155-.69 3.38-.812 1.048-.107 2.15-.026 3.022.682zm.5 0c.984-.847 2.35-1.073 3.612-.943 1.33.134 2.659.53 3.594.893l.09.035v9.906l-.044-.02c-.87-.34-2.155-.69-3.38-.812C11.324 10.831 10.222 10.912 9.35 11.62 9.267 11.558 9.148 11.5 9 11.5V2.547c-.036-.015-.07-.03-.106-.046L8.5 1.783z"/></svg>
+                    Manage Resources
+                </a>
+            </li>
+            {% endif %}
+
+            {% if user_role == 'admin' or user_role == 'staff' %}
+            <span class="nav-label" style="margin-top:8px;">{% if user_role == 'admin' %}Admin{% else %}Oversight{% endif %}</span>
+            <li class="nav-item">
                 <a href="{% url 'analytics_dashboard' %}" class="nav-link" data-path="/dashboard/">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>
                     Analytics
                 </a>
             </li>
+            {% endif %}
+            {% if user_role == 'admin' %}
+            <li class="nav-item">
+                <a href="{% url 'manage_counselors' %}" class="nav-link" data-path="/admin-panel/counselors/">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/><path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
+                    Manage Counselors
+                </a>
+            </li>
+            {% endif %}
         </ul>
     </div>
 
     <div class="sidebar-footer">
         <div class="user-card" id="userCard">
-            <div class="user-avatar" id="userAvatarInitials">?</div>
+            <div class="user-avatar" id="userAvatarInitials">{{ request.user.username|slice:":1"|upper }}</div>
             <div class="user-info">
-                <div class="user-name" id="userDisplayName">Loading...</div>
-                <div class="user-role" id="userDisplayRole">Student</div>
+                <div class="user-name" id="userDisplayName">{{ request.user.get_full_name|default:request.user.username }}</div>
+                <div class="user-role" id="userDisplayRole">
+                    {% if user_role == 'admin' %}Admin{% elif user_role == 'staff' %}University Staff{% elif user_role == 'counselor' %}Counselor{% else %}Student{% endif %}
+                    {% if user_institution_name %} · {{ user_institution_name }}{% endif %}
+                </div>
             </div>
             <button class="logout-btn-icon" onclick="handleLogout()" title="Logout" style="background:none; border:none; cursor:pointer; padding:4px; color:var(--text-muted);">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>

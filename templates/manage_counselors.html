@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Counselors — MindCare{% endblock %}
+{% block breadcrumb %}Manage Counselors{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-heading">Manage Counselors</h1>
+    <p class="page-desc">Approve new counselor accounts before they can take bookings.</p>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Pending Approval ({{ pending_counselors|length }})</span></div>
+    <div class="card-body" id="pendingContainer">
+        {% if pending_counselors %}
+            {% for c in pending_counselors %}
+            <div class="counselor-row" style="cursor:default;" data-profile-id="{{ c.id }}">
+                <div class="counselor-info">
+                    <div class="counselor-name">{{ c.user_profile.user.get_full_name|default:c.user_profile.user.username }}</div>
+                    <div class="counselor-role">{{ c.user_profile.user.email }}</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-primary btn-sm approve-btn" data-id="{{ c.id }}">Approve</button>
+                    <button class="btn btn-danger btn-sm reject-btn" data-id="{{ c.id }}">Reject</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state"><p>No pending counselor accounts.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title">Approved Counselors ({{ approved_counselors|length }})</span></div>
+    <div class="card-body">
+        {% if approved_counselors %}
+            {% for c in approved_counselors %}
+            <div class="counselor-row" style="cursor:default;">
+                <div class="counselor-info">
+                    <div class="counselor-name">{{ c.user_profile.user.get_full_name|default:c.user_profile.user.username }}</div>
+                    <div class="counselor-role">{{ c.title|default:"Counselor" }} · {{ c.user_profile.user.email }}</div>
+                </div>
+                <span class="badge badge-success">Approved</span>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state"><p>No approved counselors yet.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
+
+document.querySelectorAll('.approve-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const resp = await fetch(`/api/admin/counselor/${this.dataset.id}/approve/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await resp.json();
+        if (data.success) window.location.reload();
+        else alert(data.error || 'Could not approve.');
+    });
+});
+
+document.querySelectorAll('.reject-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        if (!confirm('Reject and permanently remove this counselor account?')) return;
+        const resp = await fetch(`/api/admin/counselor/${this.dataset.id}/reject/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await resp.json();
+        if (data.success) this.closest('[data-profile-id]').remove();
+        else alert(data.error || 'Could not reject.');
+    });
+});
+</script>
+{% endblock %}

@@ -14,7 +14,6 @@ let notifications = [
 document.addEventListener('DOMContentLoaded', function () {
     initSidebar();
     initNotifications();
-    initUserCard();
     initMobileMenu();
     setActiveNavLink();
 });
@@ -56,46 +55,10 @@ function setActiveNavLink() {
     });
 }
 
-// ── User Card ────────────────────────────────────────────────
-function initUserCard() {
-    try {
-        const userData = localStorage.getItem('user');
-        const nameEl   = document.getElementById('userDisplayName');
-        const roleEl   = document.getElementById('userDisplayRole');
-        const initEl   = document.getElementById('userAvatarInitials');
-
-        if (userData) {
-            const user = JSON.parse(userData);
-            const displayName = user.username || user.email || 'User';
-            const role        = user.role || 'student';
-
-            if (nameEl) nameEl.textContent = displayName;
-            if (roleEl) roleEl.textContent = capitalize(role);
-            if (initEl) initEl.textContent = displayName.charAt(0).toUpperCase();
-
-            // Show admin items
-            if (['admin', 'staff', 'faculty'].includes(role)) {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-            }
-        } else {
-            if (nameEl) nameEl.textContent = 'Guest';
-            if (roleEl) roleEl.textContent = 'Student';
-            if (initEl) initEl.textContent = 'G';
-        }
-    } catch (e) {
-        console.error('Error loading user data:', e);
-    }
-}
-
-function capitalize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
 // ── Logout ───────────────────────────────────────────────────
 async function handleLogout() {
     try {
-        const response = await fetch('/api/logout/', {
+        await fetch('/api/logout/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),

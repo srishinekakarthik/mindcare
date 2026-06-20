@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Availability — MindCare{% endblock %}
+{% block breadcrumb %}Manage Availability{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-heading">Manage Availability</h1>
+    <p class="page-desc">Add open slots so students can book sessions with you.</p>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Add a Slot</span></div>
+    <div class="card-body">
+        <form id="addSlotForm" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" for="slotDate">Date</label>
+                <input type="date" id="slotDate" class="form-input" required>
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" for="slotTime">Time</label>
+                <input type="time" id="slotTime" class="form-input" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="addSlotBtn">Add Slot</button>
+        </form>
+        <div id="addSlotError" class="alert alert-danger" style="display:none; margin-top:12px; font-size:12px; padding:10px;"></div>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><span class="card-title">Your Upcoming Slots</span></div>
+    <div class="card-body" id="slotsContainer">
+        {% if slots %}
+            {% for slot in slots %}
+            <div class="counselor-row" style="cursor:default;" data-slot-id="{{ slot.id }}">
+                <div class="counselor-info">
+                    <div class="counselor-name">{{ slot.date }} at {{ slot.start_time|time:"g:i A" }}</div>
+                    <div class="counselor-role">{% if slot.is_booked %}Booked{% else %}Open{% endif %}</div>
+                </div>
+                {% if not slot.is_booked %}
+                <button class="btn btn-ghost btn-sm delete-slot-btn" data-slot-id="{{ slot.id }}">Remove</button>
+                {% else %}
+                <span class="badge badge-accent">Booked</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state"><p>No slots yet. Add one above.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
+
+document.getElementById('addSlotForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const date = document.getElementById('slotDate').value;
+    const time = document.getElementById('slotTime').value;
+    const errorDiv = document.getElementById('addSlotError');
+    errorDiv.style.display = 'none';
+
+    const resp = await fetch("{% url 'add_availability_api' %}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ date, time })
+    });
+    const data = await resp.json();
+    if (data.success) {
+        window.location.reload();
+    } else {
+        errorDiv.textContent = data.error || 'Could not add slot.';
+        errorDiv.style.display = 'block';
+    }
+});
+
+document.querySelectorAll('.delete-slot-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const slotId = this.dataset.slotId;
+        const resp = await fetch(`/api/counselor/availability/${slotId}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await resp.json();
+        if (data.success) {
+            this.closest('[data-slot-id]').remove();
+        } else {
+            alert(data.error || 'Could not remove slot.');
+        }
+    });
+});
+</script>
+{% endblock %}

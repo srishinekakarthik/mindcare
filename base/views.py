@@ -226,7 +226,8 @@ def signup_api(request):
 
         if role in ['staff', 'admin', 'faculty']:
             django_user.is_staff = True
-            django_user.is_superuser = True
+            if role == 'admin':
+                django_user.is_superuser = True
             django_user.save()
 
         # Create profile
@@ -604,18 +605,35 @@ def database_viewer(request):
                 request.user.is_superuser):
                 
                 from django.contrib.auth.models import User
-                
                 from .models import MoodEntry
+                
+                is_system_admin = (
+                    user_profile.role == 'admin' or 
+                    user_profile.user.email in ['admin@test.com', 'admin@demo.com'] or
+                    user_profile.user.username == 'admin@test.com'
+                )
+                
+                if is_system_admin:
+                    visible_profiles = UserProfile.objects.all().order_by('-created_at')
+                    visible_users = User.objects.all()
+                    visible_moods = MoodEntry.objects.all()
+                    visible_institutions = Institution.objects.all()
+                else:
+                    visible_profiles = UserProfile.objects.filter(institution=user_profile.institution, role='student').order_by('-created_at')
+                    visible_users = User.objects.filter(userprofile__in=visible_profiles)
+                    visible_moods = MoodEntry.objects.filter(user__in=visible_users)
+                    visible_institutions = Institution.objects.filter(id=user_profile.institution.id)
+
                 context = {
-                    'users': User.objects.all(),
-                    'profiles': UserProfile.objects.all(),
-                    'institutions': Institution.objects.all(),
-                    'mood_entries': MoodEntry.objects.all()[:20],  # Show last 20 entries
-                    'total_users': User.objects.count(),
-                    'total_profiles': UserProfile.objects.count(),
-                    'total_institutions': Institution.objects.count(),
-                    'total_mood_entries': MoodEntry.objects.count(),
-                    'admin_users': User.objects.filter(is_superuser=True).count(),
+                    'users': visible_users,
+                    'profiles': visible_profiles,
+                    'institutions': visible_institutions,
+                    'mood_entries': visible_moods[:20],
+                    'total_users': visible_profiles.count(),
+                    'total_profiles': visible_profiles.count(),
+                    'total_institutions': visible_institutions.count(),
+                    'total_mood_entries': visible_moods.count(),
+                    'total_admin': User.objects.filter(is_superuser=True).count() if is_system_admin else 0,
                 }
                 return render(request, 'database_viewer.html', context)
             else:

@@ -4,6 +4,93 @@
 {% block title %}Counselor Dashboard — MindCare{% endblock %}
 {% block breadcrumb %}Counselor Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* --- KPI Grid --- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+/* --- Counselor Row --- */
+.counselor-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-bottom: 8px;
+    background: var(--bg-secondary);
+}
+
+.counselor-row:last-child { margin-bottom: 0; }
+
+.counselor-row:hover {
+    border-color: var(--accent);
+    background: var(--accent-subtle);
+}
+
+.counselor-row.selected {
+    border-color: var(--accent);
+    background: var(--accent-subtle);
+}
+
+.counselor-info { flex: 1; min-width: 0; }
+.counselor-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.counselor-role {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 2px 0;
+}
+
+.counselor-specialties {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.counselor-rating {
+    font-size: 12px;
+    color: var(--warning);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+</style>
+{% endblock %}
 {% block content %}
 <div class="page-header">
     <h1 class="page-heading">Welcome back{% if counselor.user_profile.user.first_name %}, {{ counselor.user_profile.user.first_name }}{% endif %}</h1>
